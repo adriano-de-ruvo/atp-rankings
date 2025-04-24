@@ -134,7 +134,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>🎾 ATP Guess Game</h1>", unsafe_allow_html=True)
+st.markdown("<h1>🎾 ATP Guess Battle</h1>", unsafe_allow_html=True)
 st.markdown("<h4>Tracking who predicted the 2025 ATP Top 10 best</h4>", unsafe_allow_html=True)
 st.markdown("---")
 
@@ -154,8 +154,8 @@ colors = {
 for player, series in scores.items():
     ax.plot(series.index, series.values, label=player, linewidth=2.5, color=colors[player])
 
-ax.set_title("📊 Weekly Accuracy (Avg Euclidean Distance)", fontsize=16, fontweight='bold')
-ax.set_ylabel("Average Distance", fontsize=12)
+ax.set_title("Weekly Accuracy", fontsize=16, fontweight='bold')
+ax.set_ylabel("Average Euclidean Distance", fontsize=12)
 ax.set_xlabel("Week", fontsize=12)
 ax.grid(True, linestyle='--', alpha=0.3)
 ax.legend(frameon=False)
@@ -165,4 +165,4 @@ st.pyplot(fig)
 
 # 👇 Footer
 st.markdown("---")
-st.markdown("<small style='color: #aaa;'>Built with ❤️ by friends who take tennis way too seriously</small>", unsafe_allow_html=True)
+st.markdown("<small style='color: #aaa;'>In Rafa we trust</small>", unsafe_allow_html=True)

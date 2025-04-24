@@ -4,6 +4,7 @@ import numpy as np
 import requests
 from bs4 import BeautifulSoup
 import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
 
 # Fix for matplotlib in Streamlit
 import matplotlib
@@ -39,16 +40,14 @@ name_map = {
 }
 players_to_track = list(name_map.values())
 
-# Weeks (official ATP Mondays)
+# === Auto-generate ATP Mondays from 2025-01-06 to today
 def get_weeks():
-    return [
-        "2025-01-06", "2025-01-13", "2025-01-20", "2025-01-27",
-        "2025-02-03", "2025-02-10", "2025-02-17", "2025-02-24",
-        "2025-03-03", "2025-03-10", "2025-03-17", "2025-03-24", "2025-03-31",
-        "2025-04-07", "2025-04-14", "2025-04-21"
-    ]
+    start = datetime(2025, 1, 6)
+    today = datetime.today()
+    return [(start + timedelta(weeks=i)).strftime('%Y-%m-%d') 
+            for i in range((today - start).days // 7 + 1)]
 
-# Scrape ATP data for a given date
+# Scrape ATP rankings for one week
 def fetch_rankings_for_date(date_str):
     url = f"https://www.atptour.com/en/rankings/singles?rankDate={date_str}&dateWeek={date_str}&rankRange=0-100"
     response = requests.get(url)
@@ -74,17 +73,16 @@ def fetch_rankings_for_date(date_str):
     ranking_data["date"] = date_str
     return ranking_data
 
-# Get data for all weeks
+# Get all weekly rankings
 @st.cache_data
 def get_all_rankings():
-    data = []
-    for date in get_weeks():
-        data.append(fetch_rankings_for_date(date))
+    weeks = get_weeks()
+    data = [fetch_rankings_for_date(date) for date in weeks]
     df = pd.DataFrame(data).set_index("date")
     df.index = pd.to_datetime(df.index)
     return df
 
-# Calculate distances
+# Compute average Euclidean distances
 def calculate_distances(df):
     scores = {name: [] for name in guesses}
     dates = df.index.tolist()
@@ -105,7 +103,7 @@ def calculate_distances(df):
             avg_dist = dist / 10
             scores[player].append(avg_dist)
 
-    # Interpolate
+    # Interpolate missing data
     scores = {p: pd.Series(v, index=dates).interpolate() for p, v in scores.items()}
     return scores
 
@@ -113,16 +111,16 @@ def calculate_distances(df):
 
 st.set_page_config(page_title="ATP Guess Battle", layout="wide")
 st.title("🎾 ATP Ranking Guess Battle Dashboard")
-st.markdown("Compare each player's weekly accuracy (lower = better)")
+st.markdown("Compare weekly prediction accuracy of the players.")
 
 df = get_all_rankings()
 scores = calculate_distances(df)
 
-# Plotting
+# Plot
 fig, ax = plt.subplots(figsize=(12, 6))
 for player, series in scores.items():
     ax.plot(series.index, series.values, label=player)
-ax.set_title("📊 Average Euclidean Distance from Actual Rankings")
+ax.set_title("📊 Weekly Average Euclidean Distance from Actual ATP Rankings")
 ax.set_ylabel("Avg Euclidean Distance")
 ax.set_xlabel("Week")
 ax.grid(True)

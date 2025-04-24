@@ -111,7 +111,6 @@ def calculate_distances(df):
 
 st.set_page_config(page_title="ATP Guess Battle", layout="wide")
 st.title("🎾 ATP Ranking Guess Battle Dashboard")
-st.markdown("Compare weekly prediction accuracy of the players.")
 
 df = get_all_rankings()
 scores = calculate_distances(df)
@@ -120,7 +119,7 @@ scores = calculate_distances(df)
 fig, ax = plt.subplots(figsize=(12, 6))
 for player, series in scores.items():
     ax.plot(series.index, series.values, label=player)
-ax.set_title("📊 Weekly Average Euclidean Distance from Actual ATP Rankings")
+ax.set_title("Weekly Average Euclidean Distance from Actual ATP Rankings")
 ax.set_ylabel("Average Euclidean Distance")
 ax.set_xlabel("Week")
 ax.grid(True)

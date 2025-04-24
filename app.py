@@ -109,19 +109,60 @@ def calculate_distances(df):
 
 # ==== STREAMLIT UI ====
 
-st.set_page_config(page_title="ATP Guess Battle", layout="wide")
-st.title("🎾 ATP Ranking Guess Battle Dashboard")
+st.set_page_config(page_title="ATP Guess Game", layout="centered")
 
+# 👋 Header
+st.markdown("""
+<style>
+    .main {
+        background-color: #fafafa;
+    }
+    h1 {
+        font-family: 'Segoe UI', sans-serif;
+        font-weight: 700;
+        font-size: 2.8rem;
+        color: #111;
+        margin-bottom: 0.2em;
+    }
+    h4 {
+        font-family: 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 1.1rem;
+        color: #555;
+        margin-top: 0;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("<h1>🎾 ATP Guess Game</h1>", unsafe_allow_html=True)
+st.markdown("<h4>Tracking who predicted the 2025 ATP Top 10 best</h4>", unsafe_allow_html=True)
+st.markdown("---")
+
+# Load data
 df = get_all_rankings()
 scores = calculate_distances(df)
 
-# Plot
-fig, ax = plt.subplots(figsize=(12, 6))
+# 📈 Plot
+fig, ax = plt.subplots(figsize=(10, 5))
+colors = {
+    "Viola": "#E63946",
+    "Adriano": "#457B9D",
+    "Alessandro": "#2A9D8F",
+    "Federico": "#F4A261"
+}
+
 for player, series in scores.items():
-    ax.plot(series.index, series.values, label=player)
-ax.set_title("Weekly Average Euclidean Distance from Actual ATP Rankings")
-ax.set_ylabel("Average Euclidean Distance")
-ax.set_xlabel("Week")
-ax.grid(True)
-ax.legend()
+    ax.plot(series.index, series.values, label=player, linewidth=2.5, color=colors[player])
+
+ax.set_title("📊 Weekly Accuracy (Avg Euclidean Distance)", fontsize=16, fontweight='bold')
+ax.set_ylabel("Average Distance", fontsize=12)
+ax.set_xlabel("Week", fontsize=12)
+ax.grid(True, linestyle='--', alpha=0.3)
+ax.legend(frameon=False)
+fig.tight_layout()
+
 st.pyplot(fig)
+
+# 👇 Footer
+st.markdown("---")
+st.markdown("<small style='color: #aaa;'>Built with ❤️ by friends who take tennis way too seriously</small>", unsafe_allow_html=True)

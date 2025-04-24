@@ -12,10 +12,6 @@ matplotlib.use("Agg")
 
 # Guesses
 guesses = {
-    "Viola": [
-        "Jannik Sinner", "Carlos Alcaraz", "Novak Djokovic", "Alexander Zverev", "Daniil Medvedev",
-        "Taylor Fritz", "Casper Ruud", "Stefanos Tsitsipas", "Andrey Rublev", "Alex de Minaur"
-    ],
     "Adriano": [
         "Jannik Sinner", "Carlos Alcaraz", "Alexander Zverev", "Novak Djokovic", "Daniil Medvedev",
         "Taylor Fritz", "Holger Rune", "Andrey Rublev", "Jack Draper", "Alex de Minaur"
@@ -27,6 +23,10 @@ guesses = {
     "Federico": [
         "Carlos Alcaraz", "Jannik Sinner", "Taylor Fritz", "Alexander Zverev", "Daniil Medvedev",
         "Casper Ruud", "Andrey Rublev", "Holger Rune", "Stefanos Tsitsipas", "Hubert Hurkacz"
+    ],
+    "Viola": [
+        "Jannik Sinner", "Carlos Alcaraz", "Novak Djokovic", "Alexander Zverev", "Daniil Medvedev",
+        "Taylor Fritz", "Casper Ruud", "Stefanos Tsitsipas", "Andrey Rublev", "Alex de Minaur"
     ]
 }
 
@@ -121,7 +121,7 @@ fig, ax = plt.subplots(figsize=(12, 6))
 for player, series in scores.items():
     ax.plot(series.index, series.values, label=player)
 ax.set_title("📊 Weekly Average Euclidean Distance from Actual ATP Rankings")
-ax.set_ylabel("Avg Euclidean Distance")
+ax.set_ylabel("Average Euclidean Distance")
 ax.set_xlabel("Week")
 ax.grid(True)
 ax.legend()

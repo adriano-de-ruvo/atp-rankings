@@ -200,6 +200,12 @@ fig.tight_layout()
 
 st.pyplot(fig)
 
+# This should happen first:
+latest_week = df.index.max()
+latest_scores = {k: v.loc[latest_week] for k, v in scores.items()}
+current_leader = min(latest_scores, key=latest_scores.get)
+current_score = latest_scores[current_leader]
+
 # Leader
 st.markdown(f"""
 <div class='metric-card'>

@@ -117,8 +117,14 @@ def calculate_distances(df):
     return scores
 
 # === PAGE CONTENT ===
-st.write("## ATP Rankings Prediction Challenge")
-st.write("#### Who best predicted the 2025 ATP Top 10?")
+st.markdown("""
+<div style='font-size: 2.5rem; font-weight: 600; margin-bottom: 0.2rem; font-family: "Computer Modern", serif;'>
+ATP Rankings Prediction Challenge
+</div>
+<div style='font-size: 1.3rem; color: #444; font-family: "Computer Modern", serif;'>
+Who best predicted the 2025 ATP Top 10?
+</div>
+""", unsafe_allow_html=True)
 st.markdown("---")
 
 # === LOAD & COMPUTE ===

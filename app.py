@@ -250,8 +250,8 @@ for player in scores:
         "Player": player,
         "Lowest Distance": round(min_val, 2),
         "Highest Distance": round(max_val, 2),
-        "Average": round(mean_val, 2),
-        "Standard Deviation": round(std_val, 2),
+        "Avg.": round(mean_val, 2),
+        "Std. Dev.": round(std_val, 2),
         "Weeks Ranked #1": int(weeks_ranked_1),
         "Best Weekly Rank": best_rank_achieved
     })

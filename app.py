@@ -141,102 +141,48 @@ st.markdown("---")
 df = get_all_rankings()
 scores = calculate_distances(df)
 
-# === PLOTLY CHART WITH ANIMATION ===
+import time
 
 colors = {
     "Viola": "#1A1A1A", "Adriano": "#0070F3", "Alessandro": "#555", "Federico": "#9CA3AF"
 }
 
-fig = go.Figure()
-
-initial_length = 1  # Start with one data point
-
-# Add initial traces for each player
-for player, series in scores.items():
-    fig.add_trace(go.Scatter(
-        x=series.index[:initial_length],
-        y=series.values[:initial_length],
-        mode='lines+markers',
-        name=player,
-        line=dict(width=3, color=colors.get(player, "#000000")),
-        marker=dict(size=6),
-        hovertemplate='%{x|%b %d, %Y}<br><b>%{y:.2f}</b><extra>' + player + '</extra>'
-    ))
-
-# Create animation frames
-frames = []
+initial_length = 1
 num_frames = len(df.index)
 
+placeholder = st.empty()  # for rendering animation frame-by-frame
+
 for i in range(initial_length + 1, num_frames + 1):
-    frame_data = []
+    fig = go.Figure()
+
     for player, series in scores.items():
-        frame_data.append(go.Scatter(
+        fig.add_trace(go.Scatter(
             x=series.index[:i],
             y=series.values[:i],
             mode='lines+markers',
+            name=player,
             line=dict(width=3, color=colors.get(player, "#000000")),
             marker=dict(size=6),
-            name=player,
-            showlegend=False
+            hovertemplate='%{x|%b %d, %Y}<br><b>%{y:.2f}</b><extra>' + player + '</extra>'
         ))
-    frames.append(go.Frame(data=frame_data, name=str(i)))
 
-fig.frames = frames
+    all_y = np.concatenate([s.values[:i] for s in scores.values()])
+    y_min, y_max = np.nanmin(all_y), np.nanmax(all_y)
 
-# Final data ranges for axis scaling
-all_x = df.index
-all_y = np.concatenate([s.values for s in scores.values()])
-y_min, y_max = np.nanmin(all_y), np.nanmax(all_y)
+    fig.update_layout(
+        xaxis=dict(title="Week", range=[df.index.min(), df.index.max()]),
+        yaxis=dict(title="Average Euclidean Distance", range=[y_min * 0.95, y_max * 1.05]),
+        template="plotly_white",
+        hovermode="x unified",
+        legend=dict(orientation="h", yanchor="top", y=-0.3, xanchor="center", x=0.5),
+        margin=dict(l=10, r=10, t=60, b=80),
+        height=500,
+        font=dict(size=14, family="Computer Modern")
+    )
 
-# Chart Layout with autoplay
-fig.update_layout(
-    updatemenus=[dict(
-        type="buttons",
-        showactive=False,
-        buttons=[dict(
-            label="",
-            method="animate",
-            args=[None, {
-                "frame": {"duration": 100, "redraw": True},
-                "fromcurrent": True,
-                "transition": {"duration": 0}
-            }]
-        )],
-        x=0,
-        y=0,
-        xanchor="left",
-        yanchor="bottom",
-        visible=False  # hide the button completely
-    )],
-    sliders=[{
-        "steps": [],  # optional: define if you want a slider (omit to skip)
-        "visible": False
-    }],
-    xaxis=dict(
-        title=dict(text="Week", font=dict(family="Computer Modern", size=16)),
-        range=[all_x.min(), all_x.max()]
-    ),
-    yaxis=dict(
-        title=dict(text="Average Euclidean Distance", font=dict(family="Computer Modern", size=16)),
-        range=[y_min * 0.95, y_max * 1.05]
-    ),
-    template="plotly_white",
-    hovermode="x unified",
-    legend=dict(orientation="h", yanchor="top", y=-0.3, xanchor="center", x=0.5),
-    margin=dict(l=10, r=10, t=60, b=80),
-    height=500,
-    font=dict(size=14, family="Computer Modern"),
-)
+    placeholder.plotly_chart(fig, use_container_width=True)
+    time.sleep(0.05)  # Adjust animation speed
 
-# Auto-run animation on first render by simulating a play click
-fig["layout"]["autosize"] = True
-fig["layout"]["transition"] = {"duration": 0}
-fig["layout"]["updatemenus"][0]["buttons"][0]["args"][1]["mode"] = "immediate"
-
-
-
-# Display plot
-st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True, "displaylogo": False})
 
 
 # === LEADER ===

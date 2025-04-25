@@ -111,6 +111,37 @@ def calculate_distances(df):
 
 st.set_page_config(page_title="ATP Guess Game", layout="centered")
 
+st.markdown("""
+<style>
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
+        background-color: #f7f8fa;
+        color: #111;
+    }
+    h1 {
+        font-size: 2.2rem;
+        font-weight: 600;
+        color: #111;
+        margin-bottom: 0.2em;
+    }
+    h4 {
+        font-weight: 400;
+        font-size: 1.1rem;
+        color: #555;
+        margin-top: 0;
+    }
+    .metric-card {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1.2rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        margin-top: 1.5rem;
+        margin-bottom: 2rem;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+
 # 👋 Header
 st.markdown("""
 <style>
@@ -134,7 +165,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>🎾 ATP Guess Battle</h1>", unsafe_allow_html=True)
+st.markdown("<h1>ATP Guess Battle</h1>", unsafe_allow_html=True)
 st.markdown("<h4>Tracking who predicted the 2025 ATP Top 10 best</h4>", unsafe_allow_html=True)
 st.markdown("---")
 
@@ -145,10 +176,10 @@ scores = calculate_distances(df)
 # 📈 Plot
 fig, ax = plt.subplots(figsize=(10, 5))
 colors = {
-    "Viola": "#E63946",
-    "Adriano": "#457B9D",
-    "Alessandro": "#2A9D8F",
-    "Federico": "#F4A261"
+    "Viola": "#1A1A1A",         # Jet black
+    "Adriano": "#0070F3",       # Vercel blue
+    "Alessandro": "#555",       # Medium gray
+    "Federico": "#9CA3AF"       # Soft steel
 }
 
 for player, series in scores.items():
@@ -159,9 +190,24 @@ ax.set_ylabel("Average Euclidean Distance", fontsize=12)
 ax.set_xlabel("Week", fontsize=12)
 ax.grid(True, linestyle='--', alpha=0.3)
 ax.legend(frameon=False)
+ax.set_facecolor('#fff')
+ax.grid(True, linestyle='--', alpha=0.1)
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.spines['left'].set_alpha(0.3)
+ax.spines['bottom'].set_alpha(0.3)
 fig.tight_layout()
 
 st.pyplot(fig)
+
+# Leader
+st.markdown(f"""
+<div class='metric-card'>
+    <div style='font-size: 0.9rem; color: #888;'>Current Leader</div>
+    <div style='font-size: 1.5rem; font-weight: 600; color: #111;'>{current_leader}</div>
+    <div style='font-size: 0.9rem; color: #666;'>Avg distance: {current_score:.2f} as of {latest_week.date()}</div>
+</div>
+""", unsafe_allow_html=True)
 
 # 👇 Footer
 st.markdown("---")

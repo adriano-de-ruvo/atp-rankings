@@ -193,9 +193,9 @@ current_score = latest_scores[current_leader]
 
 st.markdown(f"""
 <div class='metric-card'>
-    <div style='font-size: 0.9rem; color: #888;'>Current Leader</div>
+    <div style='font-size: 0.9rem; color: #888;'>Current Leader:</div>
     <div style='font-size: 1.5rem; font-weight: 600; color: #111;'>{current_leader}</div>
-    <div style='font-size: 0.9rem; color: #666;'>Avg distance: {current_score:.2f} as of {latest_week.date()}</div>
+    <div style='font-size: 0.9rem; color: #666;'>Average distance: {current_score:.2f}, as of {latest_week.date()}</div>
 </div>
 """, unsafe_allow_html=True)
 

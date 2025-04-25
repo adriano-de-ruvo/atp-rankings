@@ -5,12 +5,18 @@ import requests
 from bs4 import BeautifulSoup
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
+import plotly.graph_objects as go
 
 # Fix for matplotlib in Streamlit
 import matplotlib
 matplotlib.use("Agg")
 
-# Guesses
+# 🧠 Load Google Font for LaTeX Style
+st.markdown("""
+<link href="https://fonts.cdnfonts.com/css/computer-modern" rel="stylesheet">
+""", unsafe_allow_html=True)
+
+# 🎯 Player Guesses
 guesses = {
     "Adriano": [
         "Jannik Sinner", "Carlos Alcaraz", "Alexander Zverev", "Novak Djokovic", "Daniil Medvedev",
@@ -30,7 +36,6 @@ guesses = {
     ]
 }
 
-# Name mapping
 name_map = {
     "J. Sinner": "Jannik Sinner", "C. Alcaraz": "Carlos Alcaraz", "N. Djokovic": "Novak Djokovic",
     "A. Zverev": "Alexander Zverev", "D. Medvedev": "Daniil Medvedev", "T. Fritz": "Taylor Fritz",
@@ -40,14 +45,12 @@ name_map = {
 }
 players_to_track = list(name_map.values())
 
-# === Auto-generate ATP Mondays from 2025-01-06 to today
 def get_weeks():
     start = datetime(2025, 1, 6)
     today = datetime.today()
     return [(start + timedelta(weeks=i)).strftime('%Y-%m-%d') 
             for i in range((today - start).days // 7 + 1)]
 
-# Scrape ATP rankings for one week
 def fetch_rankings_for_date(date_str):
     url = f"https://www.atptour.com/en/rankings/singles?rankDate={date_str}&dateWeek={date_str}&rankRange=0-100"
     response = requests.get(url)
@@ -73,7 +76,6 @@ def fetch_rankings_for_date(date_str):
     ranking_data["date"] = date_str
     return ranking_data
 
-# Get all weekly rankings
 @st.cache_data
 def get_all_rankings():
     weeks = get_weeks()
@@ -82,7 +84,6 @@ def get_all_rankings():
     df.index = pd.to_datetime(df.index)
     return df
 
-# Compute average Euclidean distances
 def calculate_distances(df):
     scores = {name: [] for name in guesses}
     dates = df.index.tolist()
@@ -103,32 +104,28 @@ def calculate_distances(df):
             avg_dist = dist / 10
             scores[player].append(avg_dist)
 
-    # Interpolate missing data
     scores = {p: pd.Series(v, index=dates).interpolate() for p, v in scores.items()}
     return scores
 
-# ==== STREAMLIT UI ====
-
+# === PAGE CONFIG + STYLE ===
 st.set_page_config(page_title="ATP Guess Game", layout="centered")
 
 st.markdown("""
 <style>
     html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Computer Modern', serif;
         background-color: #f7f8fa;
         color: #111;
     }
     h1 {
-        font-size: 2.2rem;
-        font-weight: 600;
-        color: #111;
+        font-size: 2.4rem;
+        font-weight: 700;
         margin-bottom: 0.2em;
     }
     h4 {
-        font-weight: 400;
         font-size: 1.1rem;
+        font-weight: 400;
         color: #555;
-        margin-top: 0;
     }
     .metric-card {
         background: white;
@@ -141,48 +138,19 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-
-# 👋 Header
-st.markdown("""
-<style>
-    .main {
-        background-color: #fafafa;
-    }
-    h1 {
-        font-family: 'Segoe UI', sans-serif;
-        font-weight: 700;
-        font-size: 2.8rem;
-        color: #111;
-        margin-bottom: 0.2em;
-    }
-    h4 {
-        font-family: 'Segoe UI', sans-serif;
-        font-weight: 400;
-        font-size: 1.1rem;
-        color: #555;
-        margin-top: 0;
-    }
-</style>
-""", unsafe_allow_html=True)
-
 st.markdown("<h1>ATP Guess Battle</h1>", unsafe_allow_html=True)
 st.markdown("<h4>Tracking who predicted the 2025 ATP Top 10 best</h4>", unsafe_allow_html=True)
 st.markdown("---")
 
-# Load data
+# === LOAD & COMPUTE ===
 df = get_all_rankings()
 scores = calculate_distances(df)
 
-import plotly.graph_objects as go
-
-# 📊 Plotly Interactive Chart
+# === PLOTLY CHART ===
 fig = go.Figure()
 
 colors = {
-    "Viola": "#1A1A1A",         # Jet black
-    "Adriano": "#0070F3",       # Vercel blue
-    "Alessandro": "#555",       # Medium gray
-    "Federico": "#9CA3AF"       # Soft steel
+    "Viola": "#1A1A1A", "Adriano": "#0070F3", "Alessandro": "#555", "Federico": "#9CA3AF"
 }
 
 for player, series in scores.items():
@@ -198,34 +166,24 @@ for player, series in scores.items():
 
 fig.update_layout(
     title=dict(
-        text=" Weekly Accuracy (Euclidean Distance from ATP Rankings)",
+        text="📈 Weekly Accuracy (Euclidean Distance from ATP Rankings)",
         x=0.5,
         xanchor="center",
-        font=dict(size=20, family="Segoe UI", color="#222")
+        font=dict(size=20, family="Computer Modern", color="#222")
     ),
     xaxis_title="Week",
     yaxis_title="Average Euclidean Distance",
     template="plotly_white",
     hovermode="x unified",
-    legend=dict(
-        orientation="h",
-        yanchor="top",
-        y=-0.2,
-        xanchor="center",
-        x=0.5,
-        font=dict(size=12),
-    ),
-    margin=dict(l=10, r=10, t=60, b=80),  # Top and bottom space to fix overlapping
-    autosize=True,
+    legend=dict(orientation="h", yanchor="top", y=-0.2, xanchor="center", x=0.5),
+    margin=dict(l=10, r=10, t=60, b=80),
     height=500,
-    font=dict(size=14),
+    font=dict(size=14, family="Computer Modern")
 )
-
 
 st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
-
-# 🏆 Current Leader Highlight
+# === LEADER ===
 latest_week = df.index.max()
 latest_scores = {k: v.loc[latest_week] for k, v in scores.items()}
 current_leader = min(latest_scores, key=latest_scores.get)
@@ -239,6 +197,6 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# 👟 Footer
+# === FOOTER ===
 st.markdown("---")
 st.markdown("<small style='color: #aaa;'>In Rafa we trust</small>", unsafe_allow_html=True)

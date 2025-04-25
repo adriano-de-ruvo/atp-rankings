@@ -11,7 +11,12 @@ import matplotlib
 matplotlib.use("Agg")
 
 # === PAGE CONFIG + STYLE ===
-st.set_page_config(page_title="ATP Guess Game", layout="centered")
+st.set_page_config(
+    page_title="ATP Rankings Prediction Challenge",
+    page_icon="🎾",
+    layout="centered", 
+)
+
 
 st.markdown("""
 <link href="https://fonts.cdnfonts.com/css/computer-modern" rel="stylesheet">

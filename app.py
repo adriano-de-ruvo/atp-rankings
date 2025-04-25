@@ -85,13 +85,24 @@ def fetch_rankings_for_date(date_str):
     ranking_data["date"] = date_str
     return ranking_data
 
+# === WEEKLY-CACHE AWARE FETCH ===
+today = datetime.today()
+current_week_key = f"{today.isocalendar().year}-{today.isocalendar().week:02d}"
+
 @st.cache_data
-def get_all_rankings():
+def get_all_rankings(week_key):
     weeks = get_weeks()
     data = [fetch_rankings_for_date(date) for date in weeks]
     df = pd.DataFrame(data).set_index("date")
     df.index = pd.to_datetime(df.index)
     return df
+
+# USE WEEK-BASED CACHE KEY
+df = get_all_rankings(current_week_key)
+
+# Show data freshness to user
+st.caption(f"Data last updated for week {current_week_key}")
+
 
 def calculate_distances(df):
     scores = {name: [] for name in guesses}
@@ -128,7 +139,6 @@ Who best predicted the 2025 ATP Top 10?
 st.markdown("---")
 
 # === LOAD & COMPUTE ===
-df = get_all_rankings()
 scores = calculate_distances(df)
 
 # === PLOT ===

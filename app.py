@@ -183,7 +183,12 @@ for i in range(initial_length + 1, num_frames + 1):
 
 fig.frames = frames
 
-# Add Play button for animation
+# Final data ranges for axis scaling
+all_x = df.index
+all_y = np.concatenate([s.values for s in scores.values()])
+y_min, y_max = np.nanmin(all_y), np.nanmax(all_y)
+
+# Chart Layout with fixed axis ranges based on final data
 fig.update_layout(
     updatemenus=[dict(
         type="buttons",
@@ -201,16 +206,14 @@ fig.update_layout(
         xanchor="center",
         y=-0.2,
         yanchor="top"
-    )]
-)
-
-# Chart Layout
-fig.update_layout(
+    )],
     xaxis=dict(
-        title=dict(text="Week", font=dict(family="Computer Modern", size=16))
+        title=dict(text="Week", font=dict(family="Computer Modern", size=16)),
+        range=[all_x.min(), all_x.max()]
     ),
     yaxis=dict(
-        title=dict(text="Average Euclidean Distance", font=dict(family="Computer Modern", size=16))
+        title=dict(text="Average Euclidean Distance", font=dict(family="Computer Modern", size=16)),
+        range=[y_min * 0.95, y_max * 1.05]
     ),
     template="plotly_white",
     hovermode="x unified",
@@ -219,6 +222,7 @@ fig.update_layout(
     height=500,
     font=dict(size=14, family="Computer Modern")
 )
+
 
 # Display plot
 st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True, "displaylogo": False})

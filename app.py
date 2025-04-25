@@ -207,8 +207,7 @@ fig.update_layout(
 # Chart Layout
 fig.update_layout(
     xaxis=dict(
-        title=dict(text="Week", font=dict(family="Computer Modern", size=16)),
-        range=[df.index.min(), df.index.max()]
+        title=dict(text="Week", font=dict(family="Computer Modern", size=16))
     ),
     yaxis=dict(
         title=dict(text="Average Euclidean Distance", font=dict(family="Computer Modern", size=16))

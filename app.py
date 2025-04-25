@@ -197,24 +197,30 @@ for player, series in scores.items():
     ))
 
 fig.update_layout(
-    title="📈 Weekly Accuracy (Euclidean Distance from ATP Rankings)",
+    title=dict(
+        text="📈 Weekly Accuracy (Euclidean Distance from ATP Rankings)",
+        x=0.5,
+        xanchor="center",
+        font=dict(size=20, family="Segoe UI", color="#222")
+    ),
     xaxis_title="Week",
     yaxis_title="Average Euclidean Distance",
     template="plotly_white",
     hovermode="x unified",
     legend=dict(
         orientation="h",
-        yanchor="bottom",
-        y=1.02,
+        yanchor="top",
+        y=-0.2,
         xanchor="center",
         x=0.5,
         font=dict(size=12),
     ),
-    margin=dict(l=10, r=10, t=40, b=40),
+    margin=dict(l=10, r=10, t=60, b=80),  # Top and bottom space to fix overlapping
     autosize=True,
     height=500,
     font=dict(size=14),
 )
+
 
 st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 

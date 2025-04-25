@@ -168,7 +168,8 @@ for i in range(2, len(df.index) + 1):
 # === SHOW DATA UPDATE DATE AFTER GRAPH ===
 # Compute the Monday of the latest scraped week
 latest_monday = df.index.max().date().strftime('%B %d, %Y')
-st.markdown(f"<div style='text-align: center; color: #888; font-size: 0.9rem;'>Data last updated: {latest_monday}</div>", unsafe_allow_html=True)
+st.markdown(f"<div style='text-align: right; color: #888; font-size: 0.9rem;'>Data last updated: {latest_monday}</div>", unsafe_allow_html=True)
+
 
 # === LEADER STREAK + LOWEST DISTANCE ===
 weekly_leaders = pd.Series(index=df.index, dtype=object)

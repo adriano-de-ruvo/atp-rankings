@@ -230,12 +230,12 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# === SUMMARY TABLE ===
+# === UPDATED SUMMARY TABLE WITH BEST WEEKLY RANK ===
 summary = []
 
-# Compute weekly rankings (lower distance = better rank)
+# Weekly rankings for all players (lower = better)
 weekly_ranks = pd.DataFrame({p: s for p, s in scores.items()})
-rank_positions = weekly_ranks.rank(axis=1, method='min')  # rank each week, lower is better
+rank_positions = weekly_ranks.rank(axis=1, method='min')  # method='min' ensures ties go to the lower rank
 
 for player in scores:
     series = scores[player]
@@ -243,20 +243,23 @@ for player in scores:
     max_val = series.max()
     mean_val = series.mean()
     std_val = series.std()
-    best_rank = (rank_positions[player] == 1).sum()  # number of times ranked best of the 4
+    weeks_ranked_1 = (rank_positions[player] == 1).sum()
+    best_rank_achieved = int(rank_positions[player].min())
+
     summary.append({
         "Player": player,
         "Lowest Distance": round(min_val, 2),
         "Highest Distance": round(max_val, 2),
-        "Average Distance": round(mean_val, 2),
-        "Std Dev": round(std_val, 2),
-        "Weeks Ranked #1": int(best_rank)
+        "Average": round(mean_val, 2),
+        "Standard Deviation": round(std_val, 2),
+        "Weeks Ranked #1": int(weeks_ranked_1),
+        "Best Weekly Rank": best_rank_achieved
     })
 
 summary_df = pd.DataFrame(summary).set_index("Player")
 
 # Display table
-st.markdown("### 📊 Player Performance Summary")
+st.markdown("### Player Performance Summary")
 st.dataframe(summary_df.style.format(precision=2))
 
 

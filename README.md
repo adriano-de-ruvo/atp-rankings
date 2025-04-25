@@ -4,7 +4,7 @@ A Streamlit application that tracks and visualizes predictions for the ATP Top 1
 
 ## Overview
 
-This project tracks how accurately different people predicted the ATP men's tennis rankings. The application:
+This project tracks how accurately different players predicted the ATP men's tennis rankings. The application:
 
 1. Fetches current ATP rankings data from the ATP Tour website
 2. Compares these actual rankings against predictions made by multiple participants

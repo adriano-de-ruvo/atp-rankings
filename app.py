@@ -230,6 +230,35 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
+# === SUMMARY TABLE ===
+summary = []
+
+# Compute weekly rankings (lower distance = better rank)
+weekly_ranks = pd.DataFrame({p: s for p, s in scores.items()})
+rank_positions = weekly_ranks.rank(axis=1, method='min')  # rank each week, lower is better
+
+for player in scores:
+    series = scores[player]
+    min_val = series.min()
+    max_val = series.max()
+    mean_val = series.mean()
+    std_val = series.std()
+    best_rank = (rank_positions[player] == 1).sum()  # number of times ranked best of the 4
+    summary.append({
+        "Player": player,
+        "Lowest Distance": round(min_val, 2),
+        "Highest Distance": round(max_val, 2),
+        "Average Distance": round(mean_val, 2),
+        "Std Dev": round(std_val, 2),
+        "Weeks Ranked #1": int(best_rank)
+    })
+
+summary_df = pd.DataFrame(summary).set_index("Player")
+
+# Display table
+st.markdown("### 📊 Player Performance Summary")
+st.dataframe(summary_df.style.format(precision=2))
+
 
 # === FOOTER ===
 st.markdown("---")

@@ -7,19 +7,17 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
 
-# Fix for matplotlib in Streamlit
 import matplotlib
 matplotlib.use("Agg")
 
 # === PAGE CONFIG + STYLE ===
 st.set_page_config(page_title="ATP Guess Game", layout="centered")
 
-# 🧠 Load Google Font for LaTeX Style
 st.markdown("""
 <link href="https://fonts.cdnfonts.com/css/computer-modern" rel="stylesheet">
 <style>
     @import url('https://fonts.cdnfonts.com/css/computer-modern');
-    
+
     html, body, [class*="css"], .stTextInput, .stSelectbox, .stSlider, .stButton, .stMarkdown, .stPlotlyChart {
         font-family: 'Computer Modern', serif !important;
     }
@@ -41,24 +39,11 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 🎯 Player Guesses
 guesses = {
-    "Adriano": [
-        "Jannik Sinner", "Carlos Alcaraz", "Alexander Zverev", "Novak Djokovic", "Daniil Medvedev",
-        "Taylor Fritz", "Holger Rune", "Andrey Rublev", "Jack Draper", "Alex de Minaur"
-    ],
-    "Alessandro": [
-        "Carlos Alcaraz", "Daniil Medvedev", "Jannik Sinner", "Alexander Zverev", "Novak Djokovic",
-        "Taylor Fritz", "Casper Ruud", "Stefanos Tsitsipas", "Hubert Hurkacz", "Holger Rune"
-    ],
-    "Federico": [
-        "Carlos Alcaraz", "Jannik Sinner", "Taylor Fritz", "Alexander Zverev", "Daniil Medvedev",
-        "Casper Ruud", "Andrey Rublev", "Holger Rune", "Stefanos Tsitsipas", "Hubert Hurkacz"
-    ],
-    "Viola": [
-        "Jannik Sinner", "Carlos Alcaraz", "Novak Djokovic", "Alexander Zverev", "Daniil Medvedev",
-        "Taylor Fritz", "Casper Ruud", "Stefanos Tsitsipas", "Andrey Rublev", "Alex de Minaur"
-    ]
+    "Adriano": ["Jannik Sinner", "Carlos Alcaraz", "Alexander Zverev", "Novak Djokovic", "Daniil Medvedev", "Taylor Fritz", "Holger Rune", "Andrey Rublev", "Jack Draper", "Alex de Minaur"],
+    "Alessandro": ["Carlos Alcaraz", "Daniil Medvedev", "Jannik Sinner", "Alexander Zverev", "Novak Djokovic", "Taylor Fritz", "Casper Ruud", "Stefanos Tsitsipas", "Hubert Hurkacz", "Holger Rune"],
+    "Federico": ["Carlos Alcaraz", "Jannik Sinner", "Taylor Fritz", "Alexander Zverev", "Daniil Medvedev", "Casper Ruud", "Andrey Rublev", "Holger Rune", "Stefanos Tsitsipas", "Hubert Hurkacz"],
+    "Viola": ["Jannik Sinner", "Carlos Alcaraz", "Novak Djokovic", "Alexander Zverev", "Daniil Medvedev", "Taylor Fritz", "Casper Ruud", "Stefanos Tsitsipas", "Andrey Rublev", "Alex de Minaur"]
 }
 
 name_map = {
@@ -73,8 +58,7 @@ players_to_track = list(name_map.values())
 def get_weeks():
     start = datetime(2025, 1, 6)
     today = datetime.today()
-    return [(start + timedelta(weeks=i)).strftime('%Y-%m-%d') 
-            for i in range((today - start).days // 7 + 1)]
+    return [(start + timedelta(weeks=i)).strftime('%Y-%m-%d') for i in range((today - start).days // 7 + 1)]
 
 def fetch_rankings_for_date(date_str):
     url = f"https://www.atptour.com/en/rankings/singles?rankDate={date_str}&dateWeek={date_str}&rankRange=0-100"
@@ -141,34 +125,21 @@ st.markdown("---")
 df = get_all_rankings()
 scores = calculate_distances(df)
 
-import time
-
-colors = {
-    "Viola": "#1A1A1A", "Adriano": "#0070F3", "Alessandro": "#555", "Federico": "#9CA3AF"
-}
-
-initial_length = 1
-num_frames = len(df.index)
-
-placeholder = st.empty()  # for rendering animation frame-by-frame
-
-for i in range(initial_length + 1, num_frames + 1):
+# === PLOT ===
+colors = {"Viola": "#1A1A1A", "Adriano": "#0070F3", "Alessandro": "#555", "Federico": "#9CA3AF"}
+placeholder = st.empty()
+for i in range(2, len(df.index) + 1):
     fig = go.Figure()
-
     for player, series in scores.items():
         fig.add_trace(go.Scatter(
-            x=series.index[:i],
-            y=series.values[:i],
-            mode='lines+markers',
-            name=player,
+            x=series.index[:i], y=series.values[:i],
+            mode='lines+markers', name=player,
             line=dict(width=3, color=colors.get(player, "#000000")),
             marker=dict(size=6),
             hovertemplate='%{x|%b %d, %Y}<br><b>%{y:.2f}</b><extra>' + player + '</extra>'
         ))
-
     all_y = np.concatenate([s.values[:i] for s in scores.values()])
     y_min, y_max = np.nanmin(all_y), np.nanmax(all_y)
-
     fig.update_layout(
         xaxis=dict(title="Week", range=[df.index.min(), df.index.max()]),
         yaxis=dict(title="Average Euclidean Distance", range=[y_min * 0.95, y_max * 1.05]),
@@ -179,18 +150,16 @@ for i in range(initial_length + 1, num_frames + 1):
         height=500,
         font=dict(size=14, family="Computer Modern")
     )
-
     placeholder.plotly_chart(fig, use_container_width=True)
-    time.sleep(0.05)  # Adjust animation speed
+    import time; time.sleep(0.05)
 
 # === LEADER STREAK + LOWEST DISTANCE ===
-# Determine weekly leaders
-weekly_leaders = pd.Series({
-    week: min(scores, key=lambda p: distances.loc[week])
-    for week, distances in zip(df.index, zip(*[s.values for s in scores.values()]))
-})
+weekly_leaders = pd.Series(index=df.index, dtype=object)
+for week in df.index:
+    leader = min(scores, key=lambda p: scores[p].loc[week])
+    weekly_leaders.loc[week] = leader
 
-# Longest streak of same leader
+# Longest streak
 longest_streak_holder = None
 longest_streak_length = 0
 current_holder = None
@@ -206,7 +175,7 @@ for leader in weekly_leaders:
         longest_streak_holder = current_holder
         longest_streak_length = current_length
 
-# Lowest distance ever achieved
+# Lowest distance
 min_distance = float('inf')
 min_distance_player = None
 min_distance_date = None
@@ -218,8 +187,7 @@ for player, series in scores.items():
         min_distance_player = player
         min_distance_date = series.idxmin()
 
-
-# === LEADER ===
+# === METRICS ===
 latest_week = df.index.max()
 latest_scores = {k: v.loc[latest_week] for k, v in scores.items()}
 current_leader = min(latest_scores, key=latest_scores.get)
@@ -233,7 +201,6 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# Longest streak
 st.markdown(f"""
 <div class='metric-card'>
     <div style='font-size: 0.9rem; color: #888;'>Longest Leader Streak:</div>
@@ -242,7 +209,6 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# Lowest distance
 st.markdown(f"""
 <div class='metric-card'>
     <div style='font-size: 0.9rem; color: #888;'>Lowest Distance Ever:</div>
@@ -250,9 +216,6 @@ st.markdown(f"""
     <div style='font-size: 0.9rem; color: #666;'>Distance: {min_distance:.2f} on {min_distance_date.date()}</div>
 </div>
 """, unsafe_allow_html=True)
-
-
-
 
 # === FOOTER ===
 st.markdown("---")

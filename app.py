@@ -183,6 +183,40 @@ for i in range(initial_length + 1, num_frames + 1):
     placeholder.plotly_chart(fig, use_container_width=True)
     time.sleep(0.05)  # Adjust animation speed
 
+# === LEADER STREAK + LOWEST DISTANCE ===
+# Determine weekly leaders
+weekly_leaders = pd.Series({
+    week: min(scores, key=lambda p: distances.loc[week])
+    for week, distances in zip(df.index, zip(*[s.values for s in scores.values()]))
+})
+
+# Longest streak of same leader
+longest_streak_holder = None
+longest_streak_length = 0
+current_holder = None
+current_length = 0
+
+for leader in weekly_leaders:
+    if leader == current_holder:
+        current_length += 1
+    else:
+        current_holder = leader
+        current_length = 1
+    if current_length > longest_streak_length:
+        longest_streak_holder = current_holder
+        longest_streak_length = current_length
+
+# Lowest distance ever achieved
+min_distance = float('inf')
+min_distance_player = None
+min_distance_date = None
+
+for player, series in scores.items():
+    min_val = series.min()
+    if min_val < min_distance:
+        min_distance = min_val
+        min_distance_player = player
+        min_distance_date = series.idxmin()
 
 
 # === LEADER ===
@@ -198,6 +232,27 @@ st.markdown(f"""
     <div style='font-size: 0.9rem; color: #666;'>Average distance: {current_score:.2f}, as of {latest_week.date()}</div>
 </div>
 """, unsafe_allow_html=True)
+
+# Longest streak
+st.markdown(f"""
+<div class='metric-card'>
+    <div style='font-size: 0.9rem; color: #888;'>Longest Leader Streak:</div>
+    <div style='font-size: 1.5rem; font-weight: 600; color: #111;'>{longest_streak_holder}</div>
+    <div style='font-size: 0.9rem; color: #666;'>{longest_streak_length} consecutive weeks as leader</div>
+</div>
+""", unsafe_allow_html=True)
+
+# Lowest distance
+st.markdown(f"""
+<div class='metric-card'>
+    <div style='font-size: 0.9rem; color: #888;'>Lowest Distance Ever:</div>
+    <div style='font-size: 1.5rem; font-weight: 600; color: #111;'>{min_distance_player}</div>
+    <div style='font-size: 0.9rem; color: #666;'>Distance: {min_distance:.2f} on {min_distance_date.date()}</div>
+</div>
+""", unsafe_allow_html=True)
+
+
+
 
 # === FOOTER ===
 st.markdown("---")

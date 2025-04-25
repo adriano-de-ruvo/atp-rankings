@@ -188,13 +188,13 @@ all_x = df.index
 all_y = np.concatenate([s.values for s in scores.values()])
 y_min, y_max = np.nanmin(all_y), np.nanmax(all_y)
 
-# Chart Layout with fixed axis ranges based on final data
+# Chart Layout with autoplay
 fig.update_layout(
     updatemenus=[dict(
         type="buttons",
         showactive=False,
         buttons=[dict(
-            label="Play",
+            label="",
             method="animate",
             args=[None, {
                 "frame": {"duration": 100, "redraw": True},
@@ -202,11 +202,16 @@ fig.update_layout(
                 "transition": {"duration": 0}
             }]
         )],
-        x=0.5,
-        xanchor="center",
-        y=-0.2,
-        yanchor="top"
+        x=0,
+        y=0,
+        xanchor="left",
+        yanchor="bottom",
+        visible=False  # hide the button completely
     )],
+    sliders=[{
+        "steps": [],  # optional: define if you want a slider (omit to skip)
+        "visible": False
+    }],
     xaxis=dict(
         title=dict(text="Week", font=dict(family="Computer Modern", size=16)),
         range=[all_x.min(), all_x.max()]
@@ -220,8 +225,14 @@ fig.update_layout(
     legend=dict(orientation="h", yanchor="top", y=-0.3, xanchor="center", x=0.5),
     margin=dict(l=10, r=10, t=60, b=80),
     height=500,
-    font=dict(size=14, family="Computer Modern")
+    font=dict(size=14, family="Computer Modern"),
 )
+
+# Auto-run animation on first render by simulating a play click
+fig["layout"]["autosize"] = True
+fig["layout"]["transition"] = {"duration": 0}
+fig["layout"]["updatemenus"][0]["buttons"][0]["args"][1]["mode"] = "immediate"
+
 
 
 # Display plot

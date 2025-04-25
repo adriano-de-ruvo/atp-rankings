@@ -141,47 +141,89 @@ st.markdown("---")
 df = get_all_rankings()
 scores = calculate_distances(df)
 
-# === PLOTLY CHART ===
-fig = go.Figure()
+# === PLOTLY CHART WITH ANIMATION ===
 
 colors = {
     "Viola": "#1A1A1A", "Adriano": "#0070F3", "Alessandro": "#555", "Federico": "#9CA3AF"
 }
 
+fig = go.Figure()
+
+initial_length = 1  # Start with one data point
+
+# Add initial traces for each player
 for player, series in scores.items():
     fig.add_trace(go.Scatter(
-        x=series.index,
-        y=series.values,
+        x=series.index[:initial_length],
+        y=series.values[:initial_length],
         mode='lines+markers',
         name=player,
-        line=dict(width=3, color=colors[player]),
+        line=dict(width=3, color=colors.get(player, "#000000")),
         marker=dict(size=6),
         hovertemplate='%{x|%b %d, %Y}<br><b>%{y:.2f}</b><extra>' + player + '</extra>'
     ))
 
+# Create animation frames
+frames = []
+num_frames = len(df.index)
+
+for i in range(initial_length + 1, num_frames + 1):
+    frame_data = []
+    for player, series in scores.items():
+        frame_data.append(go.Scatter(
+            x=series.index[:i],
+            y=series.values[:i],
+            mode='lines+markers',
+            line=dict(width=3, color=colors.get(player, "#000000")),
+            marker=dict(size=6),
+            name=player,
+            showlegend=False
+        ))
+    frames.append(go.Frame(data=frame_data, name=str(i)))
+
+fig.frames = frames
+
+# Add Play button for animation
 fig.update_layout(
-    title=dict(
-        text="",
+    updatemenus=[dict(
+        type="buttons",
+        showactive=False,
+        buttons=[dict(
+            label="Play",
+            method="animate",
+            args=[None, {
+                "frame": {"duration": 100, "redraw": True},
+                "fromcurrent": True,
+                "transition": {"duration": 0}
+            }]
+        )],
         x=0.5,
         xanchor="center",
-        font=dict(size=20, family="Computer Modern", color="#222")
-    ),
+        y=-0.2,
+        yanchor="top"
+    )]
+)
+
+# Chart Layout
+fig.update_layout(
     xaxis=dict(
-        title=dict(text="Week", font=dict(family="Computer Modern", size=16))
+        title=dict(text="Week", font=dict(family="Computer Modern", size=16)),
+        range=[df.index.min(), df.index.max()]
     ),
     yaxis=dict(
         title=dict(text="Average Euclidean Distance", font=dict(family="Computer Modern", size=16))
     ),
     template="plotly_white",
     hovermode="x unified",
-    legend=dict(orientation="h", yanchor="top", y=-0.2, xanchor="center", x=0.5),
+    legend=dict(orientation="h", yanchor="top", y=-0.3, xanchor="center", x=0.5),
     margin=dict(l=10, r=10, t=60, b=80),
     height=500,
     font=dict(size=14, family="Computer Modern")
 )
 
-# ✅ Reactivate toolbar
+# Display plot
 st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True, "displaylogo": False})
+
 
 # === LEADER ===
 latest_week = df.index.max()

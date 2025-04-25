@@ -150,7 +150,7 @@ for i in range(2, len(df.index) + 1):
         height=500,
         font=dict(size=14, family="Computer Modern")
     )
-    placeholder.plotly_chart(fig, use_container_width=True)
+    placeholder.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     import time; time.sleep(0.05)
 
 # === LEADER STREAK + LOWEST DISTANCE ===

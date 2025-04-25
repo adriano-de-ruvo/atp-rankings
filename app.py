@@ -198,7 +198,7 @@ for player, series in scores.items():
 
 fig.update_layout(
     title=dict(
-        text="📈 Weekly Accuracy (Euclidean Distance from ATP Rankings)",
+        text=" Weekly Accuracy (Euclidean Distance from ATP Rankings)",
         x=0.5,
         xanchor="center",
         font=dict(size=20, family="Segoe UI", color="#222")

@@ -181,7 +181,7 @@ for i in range(initial_length + 1, num_frames + 1):
     )
 
     placeholder.plotly_chart(fig, use_container_width=True)
-    time.sleep(0.025)  # Adjust animation speed
+    time.sleep(0.75)  # Adjust animation speed
 
 
 

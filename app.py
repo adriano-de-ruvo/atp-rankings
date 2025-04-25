@@ -11,6 +11,9 @@ import plotly.graph_objects as go
 import matplotlib
 matplotlib.use("Agg")
 
+# === PAGE CONFIG + STYLE ===
+st.set_page_config(page_title="ATP Guess Game", layout="centered")
+
 # 🧠 Load Google Font for LaTeX Style
 st.markdown("""
 <link href="https://fonts.cdnfonts.com/css/computer-modern" rel="stylesheet">
@@ -107,8 +110,6 @@ def calculate_distances(df):
     scores = {p: pd.Series(v, index=dates).interpolate() for p, v in scores.items()}
     return scores
 
-# === PAGE CONFIG + STYLE ===
-st.set_page_config(page_title="ATP Guess Game", layout="centered")
 
 st.markdown("""
 <style>

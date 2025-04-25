@@ -179,10 +179,10 @@ import plotly.graph_objects as go
 fig = go.Figure()
 
 colors = {
-    "Viola": "#1A1A1A",
-    "Adriano": "#0070F3",
-    "Alessandro": "#555",
-    "Federico": "#9CA3AF"
+    "Viola": "#1A1A1A",         # Jet black
+    "Adriano": "#0070F3",       # Vercel blue
+    "Alessandro": "#555",       # Medium gray
+    "Federico": "#9CA3AF"       # Soft steel
 }
 
 for player, series in scores.items():
@@ -201,23 +201,30 @@ fig.update_layout(
     xaxis_title="Week",
     yaxis_title="Average Euclidean Distance",
     template="plotly_white",
-    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5),
+    hovermode="x unified",
+    legend=dict(
+        orientation="h",
+        yanchor="bottom",
+        y=1.02,
+        xanchor="center",
+        x=0.5,
+        font=dict(size=12),
+    ),
     margin=dict(l=10, r=10, t=40, b=40),
     autosize=True,
     height=500,
     font=dict(size=14),
 )
 
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
 
-# This should happen first:
+# 🏆 Current Leader Highlight
 latest_week = df.index.max()
 latest_scores = {k: v.loc[latest_week] for k, v in scores.items()}
 current_leader = min(latest_scores, key=latest_scores.get)
 current_score = latest_scores[current_leader]
 
-# Leader
 st.markdown(f"""
 <div class='metric-card'>
     <div style='font-size: 0.9rem; color: #888;'>Current Leader</div>
@@ -226,6 +233,6 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# 👇 Footer
+# 👟 Footer
 st.markdown("---")
 st.markdown("<small style='color: #aaa;'>In Rafa we trust</small>", unsafe_allow_html=True)

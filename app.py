@@ -173,32 +173,43 @@ st.markdown("---")
 df = get_all_rankings()
 scores = calculate_distances(df)
 
-# 📈 Plot
-fig, ax = plt.subplots(figsize=(10, 5))
+import plotly.graph_objects as go
+
+# 📊 Plotly Interactive Chart
+fig = go.Figure()
+
 colors = {
-    "Viola": "#1A1A1A",         # Jet black
-    "Adriano": "#0070F3",       # Vercel blue
-    "Alessandro": "#555",       # Medium gray
-    "Federico": "#9CA3AF"       # Soft steel
+    "Viola": "#1A1A1A",
+    "Adriano": "#0070F3",
+    "Alessandro": "#555",
+    "Federico": "#9CA3AF"
 }
 
 for player, series in scores.items():
-    ax.plot(series.index, series.values, label=player, linewidth=2.5, color=colors[player])
+    fig.add_trace(go.Scatter(
+        x=series.index,
+        y=series.values,
+        mode='lines+markers',
+        name=player,
+        line=dict(width=3, color=colors[player]),
+        marker=dict(size=6),
+        hovertemplate='%{x|%b %d, %Y}<br><b>%{y:.2f}</b><extra>' + player + '</extra>'
+    ))
 
-ax.set_title("Weekly Accuracy", fontsize=16, fontweight='bold')
-ax.set_ylabel("Average Euclidean Distance", fontsize=12)
-ax.set_xlabel("Week", fontsize=12)
-ax.grid(True, linestyle='--', alpha=0.3)
-ax.legend(frameon=False)
-ax.set_facecolor('#fff')
-ax.grid(True, linestyle='--', alpha=0.1)
-ax.spines['top'].set_visible(False)
-ax.spines['right'].set_visible(False)
-ax.spines['left'].set_alpha(0.3)
-ax.spines['bottom'].set_alpha(0.3)
-fig.tight_layout()
+fig.update_layout(
+    title="📈 Weekly Accuracy (Euclidean Distance from ATP Rankings)",
+    xaxis_title="Week",
+    yaxis_title="Average Euclidean Distance",
+    template="plotly_white",
+    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5),
+    margin=dict(l=10, r=10, t=40, b=40),
+    autosize=True,
+    height=500,
+    font=dict(size=14),
+)
 
-st.pyplot(fig)
+st.plotly_chart(fig, use_container_width=True)
+
 
 # This should happen first:
 latest_week = df.index.max()

@@ -180,7 +180,8 @@ fig.update_layout(
     font=dict(size=14, family="Computer Modern")
 )
 
-st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+# ✅ Reactivate toolbar
+st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True, "displaylogo": False})
 
 # === LEADER ===
 latest_week = df.index.max()

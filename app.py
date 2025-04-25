@@ -217,6 +217,20 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
+# === LOWEST AVERAGE DISTANCE OVERALL ===
+average_distances = {player: series.mean() for player, series in scores.items()}
+best_average_player = min(average_distances, key=average_distances.get)
+best_average_value = average_distances[best_average_player]
+
+st.markdown(f"""
+<div class='metric-card'>
+    <div style='font-size: 0.9rem; color: #888;'>Lowest average distance overall:</div>
+    <div style='font-size: 1.5rem; font-weight: 600; color: #111;'>{best_average_player}</div>
+    <div style='font-size: 0.9rem; color: #666;'>Average distance: {best_average_value:.2f} across all weeks</div>
+</div>
+""", unsafe_allow_html=True)
+
+
 # === FOOTER ===
 st.markdown("---")
 st.markdown("<small style='color: #aaa;'>In Rafa We Trust</small>", unsafe_allow_html=True)

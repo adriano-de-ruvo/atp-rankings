@@ -203,7 +203,7 @@ st.markdown(f"""
 
 st.markdown(f"""
 <div class='metric-card'>
-    <div style='font-size: 0.9rem; color: #888;'>Longest Leader Streak:</div>
+    <div style='font-size: 0.9rem; color: #888;'>Longest streak as leader:</div>
     <div style='font-size: 1.5rem; font-weight: 600; color: #111;'>{longest_streak_holder}</div>
     <div style='font-size: 0.9rem; color: #666;'>{longest_streak_length} consecutive weeks as leader</div>
 </div>
@@ -211,9 +211,9 @@ st.markdown(f"""
 
 st.markdown(f"""
 <div class='metric-card'>
-    <div style='font-size: 0.9rem; color: #888;'>Lowest Distance Ever:</div>
+    <div style='font-size: 0.9rem; color: #888;'>Lowest distance ever reached:</div>
     <div style='font-size: 1.5rem; font-weight: 600; color: #111;'>{min_distance_player}</div>
-    <div style='font-size: 0.9rem; color: #666;'>Distance: {min_distance:.2f} on {min_distance_date.date()}</div>
+    <div style='font-size: 0.9rem; color: #666;'>Average distance: {min_distance:.2f} on {min_distance_date.date()}</div>
 </div>
 """, unsafe_allow_html=True)
 

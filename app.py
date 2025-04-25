@@ -100,10 +100,6 @@ def get_all_rankings(week_key):
 # USE WEEK-BASED CACHE KEY
 df = get_all_rankings(current_week_key)
 
-# Show data freshness to user
-st.caption(f"Data last updated for week {current_week_key}")
-
-
 def calculate_distances(df):
     scores = {name: [] for name in guesses}
     dates = df.index.tolist()
@@ -168,6 +164,11 @@ for i in range(2, len(df.index) + 1):
     )
     placeholder.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     import time; time.sleep(0.05)
+
+# === SHOW DATA UPDATE DATE AFTER GRAPH ===
+# Compute the Monday of the latest scraped week
+latest_monday = df.index.max().date().strftime('%B %d, %Y')
+st.markdown(f"<div style='text-align: center; color: #888; font-size: 0.9rem;'>Data last updated: {latest_monday}</div>", unsafe_allow_html=True)
 
 # === LEADER STREAK + LOWEST DISTANCE ===
 weekly_leaders = pd.Series(index=df.index, dtype=object)

@@ -259,7 +259,7 @@ for player in scores:
 summary_df = pd.DataFrame(summary).set_index("Player")
 
 # Display table
-st.markdown("### Player Performance Summary")
+st.markdown("### Summary Statistics")
 st.dataframe(summary_df.style.format(precision=2))
 
 

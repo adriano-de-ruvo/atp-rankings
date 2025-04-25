@@ -17,6 +17,28 @@ st.set_page_config(page_title="ATP Guess Game", layout="centered")
 # 🧠 Load Google Font for LaTeX Style
 st.markdown("""
 <link href="https://fonts.cdnfonts.com/css/computer-modern" rel="stylesheet">
+<style>
+    @import url('https://fonts.cdnfonts.com/css/computer-modern');
+    
+    html, body, [class*="css"], .stTextInput, .stSelectbox, .stSlider, .stButton, .stMarkdown, .stPlotlyChart {
+        font-family: 'Computer Modern', serif !important;
+    }
+
+    h1, h2, h3, h4, h5, h6, .stTitle, .stHeader {
+        font-family: 'Computer Modern', serif !important;
+        font-weight: 500 !important;
+    }
+
+    .metric-card {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1.2rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        margin-top: 1.5rem;
+        margin-bottom: 2rem;
+        font-family: 'Computer Modern', serif !important;
+    }
+</style>
 """, unsafe_allow_html=True)
 
 # 🎯 Player Guesses
@@ -110,35 +132,7 @@ def calculate_distances(df):
     scores = {p: pd.Series(v, index=dates).interpolate() for p, v in scores.items()}
     return scores
 
-
-st.markdown("""
-<style>
-    html, body, [class*="css"] {
-        font-family: 'Computer Modern', serif;
-        background-color: #f7f8fa;
-        color: #111;
-    }
-    h1 {
-        font-size: 2.4rem;
-        font-weight: 700;
-        margin-bottom: 0.2em;
-    }
-    h4 {
-        font-size: 1.1rem;
-        font-weight: 400;
-        color: #555;
-    }
-    .metric-card {
-        background: white;
-        border-radius: 0.75rem;
-        padding: 1.2rem;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-        margin-top: 1.5rem;
-        margin-bottom: 2rem;
-    }
-</style>
-""", unsafe_allow_html=True)
-
+# === PAGE CONTENT ===
 st.markdown("<h1>ATP Guess Battle</h1>", unsafe_allow_html=True)
 st.markdown("<h4>Tracking who predicted the 2025 ATP Top 10 best</h4>", unsafe_allow_html=True)
 st.markdown("---")
@@ -172,8 +166,12 @@ fig.update_layout(
         xanchor="center",
         font=dict(size=20, family="Computer Modern", color="#222")
     ),
-    xaxis_title="Week",
-    yaxis_title="Average Euclidean Distance",
+    xaxis=dict(
+        title=dict(text="Week", font=dict(family="Computer Modern", size=16))
+    ),
+    yaxis=dict(
+        title=dict(text="Average Euclidean Distance", font=dict(family="Computer Modern", size=16))
+    ),
     template="plotly_white",
     hovermode="x unified",
     legend=dict(orientation="h", yanchor="top", y=-0.2, xanchor="center", x=0.5),

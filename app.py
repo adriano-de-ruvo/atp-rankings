@@ -17,7 +17,6 @@ st.set_page_config(
     layout="centered", 
 )
 
-
 st.markdown("""
 <link href="https://fonts.cdnfonts.com/css/computer-modern" rel="stylesheet">
 <style>
@@ -284,7 +283,6 @@ summary_df = pd.DataFrame(summary).set_index("Player")
 # Display table
 st.markdown("### Summary Statistics")
 st.dataframe(summary_df.style.format(precision=2))
-
 
 # === FOOTER ===
 st.markdown("---")

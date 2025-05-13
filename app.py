@@ -157,16 +157,20 @@ for i in range(2, len(df.index) + 1):
     all_y = np.concatenate([s.values[:i] for s in scores.values()])
     y_min, y_max = np.nanmin(all_y), np.nanmax(all_y)
     fig.update_layout(
-        xaxis=dict(title="Week", range=[df.index.min(), df.index.max()]),
-        yaxis=dict(title="Average Euclidean Distance", range=[y_min * 0.95, y_max * 1.05]),
-        template="plotly_white",
-        hovermode="x unified",
-        legend=dict(orientation="h", yanchor="top", y=-0.3, xanchor="center", x=0.5),
-        margin=dict(l=10, r=10, t=60, b=80),
-        height=500,
-        font=dict(size=14, family="Computer Modern")
-    )
-    placeholder.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    xaxis=dict(title="Week", range=[df.index.min(), df.index.max()], fixedrange=True),
+    yaxis=dict(title="Average Euclidean Distance", range=[y_min * 0.95, y_max * 1.05], fixedrange=True),
+    template="plotly_white",
+    hovermode="x unified",
+    legend=dict(orientation="h", yanchor="top", y=-0.3, xanchor="center", x=0.5),
+    margin=dict(l=10, r=10, t=60, b=80),
+    height=500,
+    font=dict(size=14, family="Computer Modern")
+)
+placeholder.plotly_chart(fig, use_container_width=True, config={
+    "scrollZoom": False,
+    "displayModeBar": False
+})
+
     import time; time.sleep(0.05)
 
 # === SHOW DATA UPDATE DATE AFTER GRAPH ===

@@ -171,7 +171,7 @@ placeholder.plotly_chart(fig, use_container_width=True, config={
     "displayModeBar": False
 })
 
-    import time; time.sleep(0.05)
+import time; time.sleep(0.05)
 
 # === SHOW DATA UPDATE DATE AFTER GRAPH ===
 # Compute the Monday of the latest scraped week

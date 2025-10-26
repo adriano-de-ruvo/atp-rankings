@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from time import perf_counter
 
 import matplotlib
 matplotlib.use("Agg")
@@ -128,7 +129,10 @@ def get_all_rankings(week_key):
     return df
 
 # USE WEEK-BASED CACHE KEY
+_t0_fetch = perf_counter()
 df = get_all_rankings(current_week_key)
+_fetch_secs = perf_counter() - _t0_fetch
+st.caption(f"Data load time: {_fetch_secs:.1f}s")
 
 def calculate_distances(df):
     scores = {name: [] for name in guesses}
@@ -164,40 +168,66 @@ Who best predicted the 2025 ATP Top 10?
 """, unsafe_allow_html=True)
 st.markdown("---")
 
+# === PERFORMANCE CONTROLS ===
+col_a, col_b = st.columns([1,1])
+with col_a:
+    fast_render = st.checkbox("Fast render (no animation)", value=True, help="Skip the animated reveal to render instantly.")
+with col_b:
+    if st.button("Clear cache and rerun", help="Forces a fresh scrape on next run to measure cold-start time"):
+        try:
+            get_all_rankings.clear()
+        except Exception:
+            pass
+        try:
+            st.cache_data.clear()
+        except Exception:
+            pass
+        st.rerun()
+
 # === LOAD & COMPUTE ===
+_t0_calc = perf_counter()
 scores = calculate_distances(df)
+_calc_secs = perf_counter() - _t0_calc
+st.caption(f"Score computation time: {_calc_secs:.1f}s")
 
 # === PLOT ===
 colors = {"Viola": "#1A1A1A", "Adriano": "#0070F3", "Alessandro": "#555", "Federico": "#9CA3AF"}
 placeholder = st.empty()
-for i in range(2, len(df.index) + 1):
+
+def render_figure(x_len: int):
     fig = go.Figure()
     for player, series in scores.items():
         fig.add_trace(go.Scatter(
-            x=series.index[:i], y=series.values[:i],
+            x=series.index[:x_len], y=series.values[:x_len],
             mode='lines+markers', name=player,
             line=dict(width=3, color=colors.get(player, "#000000")),
             marker=dict(size=6),
             hovertemplate='%{x|%b %d, %Y}<br><b>%{y:.2f}</b><extra>' + player + '</extra>'
         ))
-    all_y = np.concatenate([s.values[:i] for s in scores.values()])
+    all_y = np.concatenate([s.values[:x_len] for s in scores.values()])
     y_min, y_max = np.nanmin(all_y), np.nanmax(all_y)
     fig.update_layout(
-    xaxis=dict(title="Week", range=[df.index.min(), df.index.max()], fixedrange=True),
-    yaxis=dict(title="Average Euclidean Distance", range=[y_min * 0.95, y_max * 1.05], fixedrange=True),
-    template="plotly_white",
-    hovermode="x unified",
-    legend=dict(orientation="h", yanchor="top", y=-0.3, xanchor="center", x=0.5),
-    margin=dict(l=10, r=10, t=60, b=80),
-    height=500,
-    font=dict(size=14, family="Computer Modern")
-)
-placeholder.plotly_chart(fig, use_container_width=True, config={
-    "scrollZoom": False,
-    "displayModeBar": False
-})
+        xaxis=dict(title="Week", range=[df.index.min(), df.index.max()], fixedrange=True),
+        yaxis=dict(title="Average Euclidean Distance", range=[y_min * 0.95, y_max * 1.05], fixedrange=True),
+        template="plotly_white",
+        hovermode="x unified",
+        legend=dict(orientation="h", yanchor="top", y=-0.3, xanchor="center", x=0.5),
+        margin=dict(l=10, r=10, t=60, b=80),
+        height=500,
+        font=dict(size=14, family="Computer Modern")
+    )
+    placeholder.plotly_chart(fig, use_container_width=True, config={
+        "scrollZoom": False,
+        "displayModeBar": False
+    })
 
-import time; time.sleep(0.05)
+if fast_render:
+    render_figure(len(df.index))
+else:
+    import time
+    for i in range(2, len(df.index) + 1):
+        render_figure(i)
+        time.sleep(0.05)
 
 # === SHOW DATA UPDATE DATE AFTER GRAPH ===
 # Compute the Monday of the latest scraped week

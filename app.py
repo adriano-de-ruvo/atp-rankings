@@ -125,12 +125,19 @@ def fetch_rankings_for_date(date_str):
 today = datetime.today()
 current_week_key = f"{today.isocalendar().year}-{today.isocalendar().week:02d}"
 
-@st.cache_data
+@st.cache_data(show_spinner=False)
 def get_all_rankings(week_key):
     weeks = get_weeks()
     
+    # Show progress to user
+    progress_text = st.empty()
+    progress_bar = st.progress(0)
+    progress_text.text(f"Loading ATP rankings data for {len(weeks)} weeks...")
+    
     # Use ThreadPoolExecutor for parallel requests (max 10 at a time to be respectful)
     data = []
+    completed = 0
+    
     with ThreadPoolExecutor(max_workers=10) as executor:
         future_to_date = {executor.submit(fetch_rankings_for_date, date): date for date in weeks}
         
@@ -144,9 +151,17 @@ def get_all_rankings(week_key):
                 ranking_data = {name: 150 for name in players_to_track}
                 ranking_data["date"] = date
                 data.append(ranking_data)
+            
+            completed += 1
+            progress_bar.progress(completed / len(weeks))
+            progress_text.text(f"Loading ATP rankings data: {completed}/{len(weeks)} weeks")
     
     # Sort by date to ensure correct order
     data.sort(key=lambda x: x["date"])
+    
+    # Clear progress indicators
+    progress_bar.empty()
+    progress_text.empty()
     
     df = pd.DataFrame(data).set_index("date")
     df.index = pd.to_datetime(df.index)

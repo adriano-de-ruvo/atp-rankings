@@ -122,11 +122,34 @@ def fetch_rankings_for_date(date_str):
         return ranking_data
 
 # === WEEKLY-CACHE AWARE FETCH ===
+import json
+import os
+
 today = datetime.today()
 current_week_key = f"{today.isocalendar().year}-{today.isocalendar().week:02d}"
 
 @st.cache_data(show_spinner=False)
-def get_all_rankings(week_key):
+def load_from_cache_file():
+    """Load data from JSON cache file if it exists."""
+    cache_file = "atp_rankings_cache.json"
+    if os.path.exists(cache_file):
+        try:
+            with open(cache_file, 'r') as f:
+                cache = json.load(f)
+                data = cache["data"]
+                last_updated = cache.get("last_updated", "Unknown")
+                df = pd.DataFrame(data).set_index("date")
+                df.index = pd.to_datetime(df.index)
+                st.info(f"📁 Using cached data (last updated: {last_updated[:10]})")
+                return df
+        except Exception as e:
+            st.warning(f"Could not load cache file: {e}")
+            return None
+    return None
+
+@st.cache_data(show_spinner=False)
+def get_all_rankings_live(week_key):
+    """Fetch live data from ATP website (fallback when cache not available)."""
     weeks = get_weeks()
     
     # Show progress to user
@@ -167,8 +190,11 @@ def get_all_rankings(week_key):
     df.index = pd.to_datetime(df.index)
     return df
 
-# USE WEEK-BASED CACHE KEY
-df = get_all_rankings(current_week_key)
+# Try cache first, fall back to live scraping
+df = load_from_cache_file()
+if df is None:
+    st.warning("⚠️ Cache file not found. Fetching live data (this may take a while)...")
+    df = get_all_rankings_live(current_week_key)
 
 def calculate_distances(df):
     scores = {name: [] for name in guesses}

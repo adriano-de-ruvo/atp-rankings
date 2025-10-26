@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from time import perf_counter
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 import matplotlib
 matplotlib.use("Agg")
@@ -61,6 +62,24 @@ name_map = {
 }
 players_to_track = list(name_map.values())
 
+# Robust HTTP session with retries and browser-like headers (helps on Streamlit Cloud)
+_session = requests.Session()
+_session.headers.update({
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Connection": "keep-alive",
+})
+_retries = Retry(
+    total=2,
+    backoff_factor=0.5,
+    status_forcelist=[429, 500, 502, 503, 504],
+    allowed_methods=frozenset(["GET"]),
+)
+_adapter = HTTPAdapter(max_retries=_retries, pool_connections=10, pool_maxsize=10)
+_session.mount("https://", _adapter)
+_session.mount("http://", _adapter)
+
 def get_weeks():
     start = datetime(2025, 1, 6)
     today = datetime.today()
@@ -69,7 +88,12 @@ def get_weeks():
 def fetch_rankings_for_date(date_str):
     url = f"https://www.atptour.com/en/rankings/singles?rankDate={date_str}&dateWeek={date_str}&rankRange=0-100"
     try:
-        response = requests.get(url, timeout=15)
+        # Short connect/read timeout so cloud doesn't stall; retries handled by session
+        response = _session.get(url, timeout=(5, 10))
+        if response.status_code != 200 or not response.content:
+            ranking_data = {name: 150 for name in players_to_track}
+            ranking_data["date"] = date_str
+            return ranking_data
         soup = BeautifulSoup(response.content, "html.parser")
 
         ranking_data = {name: 150 for name in players_to_track}
@@ -129,10 +153,7 @@ def get_all_rankings(week_key):
     return df
 
 # USE WEEK-BASED CACHE KEY
-_t0_fetch = perf_counter()
 df = get_all_rankings(current_week_key)
-_fetch_secs = perf_counter() - _t0_fetch
-st.caption(f"Data load time: {_fetch_secs:.1f}s")
 
 def calculate_distances(df):
     scores = {name: [] for name in guesses}
@@ -168,66 +189,40 @@ Who best predicted the 2025 ATP Top 10?
 """, unsafe_allow_html=True)
 st.markdown("---")
 
-# === PERFORMANCE CONTROLS ===
-col_a, col_b = st.columns([1,1])
-with col_a:
-    fast_render = st.checkbox("Fast render (no animation)", value=True, help="Skip the animated reveal to render instantly.")
-with col_b:
-    if st.button("Clear cache and rerun", help="Forces a fresh scrape on next run to measure cold-start time"):
-        try:
-            get_all_rankings.clear()
-        except Exception:
-            pass
-        try:
-            st.cache_data.clear()
-        except Exception:
-            pass
-        st.rerun()
-
 # === LOAD & COMPUTE ===
-_t0_calc = perf_counter()
 scores = calculate_distances(df)
-_calc_secs = perf_counter() - _t0_calc
-st.caption(f"Score computation time: {_calc_secs:.1f}s")
 
 # === PLOT ===
 colors = {"Viola": "#1A1A1A", "Adriano": "#0070F3", "Alessandro": "#555", "Federico": "#9CA3AF"}
 placeholder = st.empty()
-
-def render_figure(x_len: int):
+for i in range(2, len(df.index) + 1):
     fig = go.Figure()
     for player, series in scores.items():
         fig.add_trace(go.Scatter(
-            x=series.index[:x_len], y=series.values[:x_len],
+            x=series.index[:i], y=series.values[:i],
             mode='lines+markers', name=player,
             line=dict(width=3, color=colors.get(player, "#000000")),
             marker=dict(size=6),
             hovertemplate='%{x|%b %d, %Y}<br><b>%{y:.2f}</b><extra>' + player + '</extra>'
         ))
-    all_y = np.concatenate([s.values[:x_len] for s in scores.values()])
+    all_y = np.concatenate([s.values[:i] for s in scores.values()])
     y_min, y_max = np.nanmin(all_y), np.nanmax(all_y)
     fig.update_layout(
-        xaxis=dict(title="Week", range=[df.index.min(), df.index.max()], fixedrange=True),
-        yaxis=dict(title="Average Euclidean Distance", range=[y_min * 0.95, y_max * 1.05], fixedrange=True),
-        template="plotly_white",
-        hovermode="x unified",
-        legend=dict(orientation="h", yanchor="top", y=-0.3, xanchor="center", x=0.5),
-        margin=dict(l=10, r=10, t=60, b=80),
-        height=500,
-        font=dict(size=14, family="Computer Modern")
-    )
-    placeholder.plotly_chart(fig, use_container_width=True, config={
-        "scrollZoom": False,
-        "displayModeBar": False
-    })
+    xaxis=dict(title="Week", range=[df.index.min(), df.index.max()], fixedrange=True),
+    yaxis=dict(title="Average Euclidean Distance", range=[y_min * 0.95, y_max * 1.05], fixedrange=True),
+    template="plotly_white",
+    hovermode="x unified",
+    legend=dict(orientation="h", yanchor="top", y=-0.3, xanchor="center", x=0.5),
+    margin=dict(l=10, r=10, t=60, b=80),
+    height=500,
+    font=dict(size=14, family="Computer Modern")
+)
+placeholder.plotly_chart(fig, use_container_width=True, config={
+    "scrollZoom": False,
+    "displayModeBar": False
+})
 
-if fast_render:
-    render_figure(len(df.index))
-else:
-    import time
-    for i in range(2, len(df.index) + 1):
-        render_figure(i)
-        time.sleep(0.05)
+import time; time.sleep(0.05)
 
 # === SHOW DATA UPDATE DATE AFTER GRAPH ===
 # Compute the Monday of the latest scraped week

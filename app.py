@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import matplotlib
 matplotlib.use("Agg")
@@ -66,28 +67,34 @@ def get_weeks():
 
 def fetch_rankings_for_date(date_str):
     url = f"https://www.atptour.com/en/rankings/singles?rankDate={date_str}&dateWeek={date_str}&rankRange=0-100"
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, "html.parser")
+    try:
+        response = requests.get(url, timeout=15)
+        soup = BeautifulSoup(response.content, "html.parser")
 
-    ranking_data = {name: 150 for name in players_to_track}
-    rows = soup.select("table.mega-table tbody tr")
+        ranking_data = {name: 150 for name in players_to_track}
+        rows = soup.select("table.mega-table tbody tr")
 
-    for row in rows:
-        try:
-            rank_cell = row.find("td", class_="rank")
-            name_cell = row.find("td", class_="player")
-            if not (rank_cell and name_cell):
+        for row in rows:
+            try:
+                rank_cell = row.find("td", class_="rank")
+                name_cell = row.find("td", class_="player")
+                if not (rank_cell and name_cell):
+                    continue
+                rank = int(rank_cell.text.strip())
+                short_name = name_cell.find("span", class_="lastName").text.strip()
+                if short_name in name_map:
+                    full_name = name_map[short_name]
+                    ranking_data[full_name] = rank
+            except:
                 continue
-            rank = int(rank_cell.text.strip())
-            short_name = name_cell.find("span", class_="lastName").text.strip()
-            if short_name in name_map:
-                full_name = name_map[short_name]
-                ranking_data[full_name] = rank
-        except:
-            continue
 
-    ranking_data["date"] = date_str
-    return ranking_data
+        ranking_data["date"] = date_str
+        return ranking_data
+    except Exception as e:
+        # Return default data if scraping fails
+        ranking_data = {name: 150 for name in players_to_track}
+        ranking_data["date"] = date_str
+        return ranking_data
 
 # === WEEKLY-CACHE AWARE FETCH ===
 today = datetime.today()
@@ -96,7 +103,26 @@ current_week_key = f"{today.isocalendar().year}-{today.isocalendar().week:02d}"
 @st.cache_data
 def get_all_rankings(week_key):
     weeks = get_weeks()
-    data = [fetch_rankings_for_date(date) for date in weeks]
+    
+    # Use ThreadPoolExecutor for parallel requests (max 10 at a time to be respectful)
+    data = []
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        future_to_date = {executor.submit(fetch_rankings_for_date, date): date for date in weeks}
+        
+        for future in as_completed(future_to_date):
+            try:
+                result = future.result()
+                data.append(result)
+            except Exception as e:
+                # If a fetch fails, append default data
+                date = future_to_date[future]
+                ranking_data = {name: 150 for name in players_to_track}
+                ranking_data["date"] = date
+                data.append(ranking_data)
+    
+    # Sort by date to ensure correct order
+    data.sort(key=lambda x: x["date"])
+    
     df = pd.DataFrame(data).set_index("date")
     df.index = pd.to_datetime(df.index)
     return df

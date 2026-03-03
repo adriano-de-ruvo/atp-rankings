@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip3 install:*)",
+      "Bash(curl:*)",
+      "Bash(echo:*)",
+      "Bash(python3:*)",
+      "Bash(pkill:*)",
+      "Bash(gh auth:*)"
+    ]
+  }
+}

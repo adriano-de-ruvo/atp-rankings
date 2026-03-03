@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>atp predictions 2026</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 13px; }
+    body {
+      font-family: "Courier New", Courier, monospace;
+      background: #fff; color: #111;
+      padding: 52px 60px 80px;
+      max-width: 1020px; margin: 0 auto; line-height: 1.55;
+    }
+
+    /* ── header ─────────────────────────────────────────────────── */
+    header { margin-bottom: 48px; }
+    h1 { font-size: 15px; font-weight: bold; letter-spacing: 0.03em; margin-bottom: 6px; }
+    .meta { color: #999; font-size: 11px; }
+    .meta a { color: inherit; text-decoration: underline; }
+
+    /* ── nav ─────────────────────────────────────────────────────── */
+    .nav { display: flex; gap: 24px; margin-top: 22px; }
+    .nav-link {
+      font-size: 11px; color: #bbb; text-decoration: none;
+      letter-spacing: .07em; padding-bottom: 3px;
+      border-bottom: 1px solid transparent;
+    }
+    .nav-link:hover { color: #555; }
+    .nav-link.active { color: #111; border-bottom-color: #111; }
+
+    /* ── section ─────────────────────────────────────────────────── */
+    .section { margin-bottom: 64px; }
+    .label {
+      font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #bbb; margin-bottom: 6px; padding-bottom: 8px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .sublabel { font-size: 10px; color: #ccc; margin-bottom: 16px; }
+
+    /* ── charts ──────────────────────────────────────────────────── */
+    .chart-wrap        { position: relative; height: 300px; margin-top: 16px; }
+    .chart-wrap-tall   { position: relative; height: 360px; margin-top: 16px; }
+    .chart-wrap-short  { position: relative; height: 200px; margin-top: 16px; }
+
+    /* ── legend ──────────────────────────────────────────────────── */
+    .legend { display: flex; gap: 24px; margin-top: 14px; flex-wrap: wrap; }
+    .legend-item {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 11px; cursor: pointer; user-select: none;
+      transition: opacity .2s;
+    }
+    .legend-item.muted { opacity: .28; }
+    .legend-rank { color: #aaa; font-size: 10px; }
+
+    /* ── leaderboard ─────────────────────────────────────────────── */
+    .board-row {
+      display: flex; align-items: center; gap: 14px;
+      border-bottom: 1px solid #f5f5f5; padding: 7px 0;
+    }
+    .board-row:last-child { border-bottom: none; }
+    .board-pos   { width: 16px; color: #ccc; font-size: 10px; }
+    .board-name  { flex: 1; font-size: 13px; }
+    .board-bar-wrap { width: 140px; height: 2px; background: #f0f0f0; flex-shrink: 0; }
+    .board-bar   { height: 100%; background: #111; }
+    .board-dist  { font-size: 11px; color: #999; min-width: 48px; text-align: right; }
+    .board-delta { font-size: 10px; min-width: 52px; text-align: right; }
+    .d-up { color: #111; } .d-dn { color: #ccc; }
+    .board-wins  { font-size: 10px; color: #ccc; min-width: 40px; text-align: right; }
+
+    /* ── insights cards ──────────────────────────────────────────── */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; }
+    .card {
+      border: 1px solid #f0f0f0; padding: 16px 18px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .card-label { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: #bbb; }
+    .card-val   { font-size: 20px; font-weight: bold; letter-spacing: -.01em; }
+    .card-sub   { font-size: 10px; color: #999; }
+
+    /* ── score breakdown ─────────────────────────────────────────── */
+    .decomp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 16px; }
+    .decomp-head { font-size: 11px; margin-bottom: 10px; padding-bottom: 4px; border-bottom: 1px solid #eee; }
+    .decomp-row  { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
+    .decomp-player { font-size: 10px; color: #777; width: 100px; flex-shrink: 0; }
+    .decomp-bar-wrap { flex: 1; height: 4px; background: #f5f5f5; }
+    .decomp-bar  { height: 100%; background: #111; }
+    .decomp-err  { font-size: 10px; color: #bbb; width: 52px; text-align: right; flex-shrink: 0; }
+    .decomp-err.hi { color: #111; }
+    .decomp-total { font-size: 10px; color: #888; margin-top: 6px; padding-top: 4px; border-top: 1px solid #f0f0f0; }
+
+    /* ── scatter ─────────────────────────────────────────────────── */
+    .scatter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 16px; }
+    .scatter-title { font-size: 11px; margin-bottom: 8px; }
+    .scatter-svg   { display: block; width: 100%; overflow: visible; }
+
+    /* ── rank table ──────────────────────────────────────────────── */
+    .rank-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+    .rank-table th { font-weight: normal; color: #bbb; text-align: center; padding: 4px 6px; }
+    .rank-table th.p-col { text-align: left; }
+    .rank-table td { text-align: center; padding: 4px 6px; border-bottom: 1px solid #fafafa; }
+    .rank-table td.p-col { text-align: left; color: #555; font-size: 11px; cursor: pointer; }
+    .rank-table td.p-col:hover { color: #000; text-decoration: underline; }
+
+    /* ── heatmap ─────────────────────────────────────────────────── */
+    .heatmap { width: 100%; border-collapse: collapse; font-size: 10px; }
+    .heatmap th { font-weight: normal; color: #bbb; font-size: 9px; padding: 4px 6px; text-align: center; }
+    .heatmap th.rh { text-align: left; }
+    .heatmap td { padding: 5px 4px; text-align: center; border: 1px solid #fafafa; }
+    .heatmap td.rh { text-align: left; color: #555; border: none; min-width: 80px; }
+    .cell-pred   { font-size: 8px; display: block; line-height: 1; }
+    .cell-actual { font-size: 11px; display: block; line-height: 1; }
+
+    /* ── animation controls ──────────────────────────────────────── */
+    .anim-ctrl { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; flex-wrap: wrap; }
+    .play-btn {
+      width: 28px; height: 28px; border: 1px solid #ddd;
+      background: none; cursor: pointer; font-size: 12px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .play-btn:hover { border-color: #999; }
+    .week-slider {
+      -webkit-appearance: none; appearance: none;
+      width: 200px; height: 2px; background: #e8e8e8; outline: none; cursor: pointer;
+    }
+    .week-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 12px; height: 12px; background: #111; border-radius: 50%;
+    }
+    .week-slider::-moz-range-thumb {
+      width: 12px; height: 12px; background: #111; border-radius: 50%; border: none;
+    }
+    .week-label { font-size: 11px; color: #888; }
+
+    /* ── movers ──────────────────────────────────────────────────── */
+    .movers { display: flex; gap: 40px; }
+    .movers-col { flex: 1; }
+    .movers-title { font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: #bbb; margin-bottom: 10px; }
+    .mover-row { display: flex; align-items: center; gap: 10px; padding: 4px 0; border-bottom: 1px solid #f5f5f5; font-size: 11px; }
+    .mover-row:last-child { border-bottom: none; }
+    .mover-name  { flex: 1; }
+    .mover-bar   { height: 2px; background: #111; flex-shrink: 0; }
+    .mover-bar.fell { background: #ddd; }
+    .mover-delta { font-size: 10px; min-width: 36px; text-align: right; }
+
+    /* ── picks breakdown ─────────────────────────────────────────── */
+    .preds { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 28px; }
+    .pred-name { font-size: 11px; font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+    .pred-row  { display: flex; gap: 6px; font-size: 10px; padding: 3px 0; }
+    .pred-rk   { color: #ccc; width: 14px; text-align: right; flex-shrink: 0; }
+    .pred-pl   { flex: 1; }
+    .pred-ac   { color: #bbb; min-width: 26px; text-align: right; }
+    .pred-df   { min-width: 28px; text-align: right; font-size: 10px; }
+    .g { color: #111; } .m { color: #888; } .b { color: #ddd; }
+
+    /* ── head-to-head ────────────────────────────────────────────── */
+    .h2h-wrap { display: inline-block; margin-top: 12px; }
+    .h2h-table { border-collapse: collapse; font-size: 10px; }
+    .h2h-table th { font-weight: normal; color: #bbb; padding: 5px 12px; text-align: center; }
+    .h2h-table th.h2h-lh { text-align: left; min-width: 90px; }
+    .h2h-name { font-size: 11px; color: #555; padding: 6px 12px; white-space: nowrap; }
+    .h2h-cell { padding: 8px 12px; text-align: center; border: 1px solid #f5f5f5; min-width: 68px; }
+    .h2h-self { background: #fafafa; color: #e0e0e0; }
+
+    /* ── error histogram ─────────────────────────────────────────── */
+    .hist-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(185px,1fr)); gap: 24px; margin-top: 16px; }
+    .hist-head { font-size: 11px; font-weight: bold; margin-bottom: 10px; }
+    .hist-bars { display: flex; align-items: flex-end; gap: 5px; height: 64px; }
+    .hist-col  { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
+    .hist-bar  { width: 100%; background: #111; min-height: 0; }
+    .hist-bar.zero { background: #efefef; min-height: 2px; }
+    .hist-x    { font-size: 8px; color: #ccc; }
+    .hist-count{ font-size: 8px; color: #bbb; height: 11px; }
+    .hist-foot { font-size: 9px; color: #bbb; margin-top: 8px; }
+
+    /* ── what-if ─────────────────────────────────────────────────── */
+    .whatif-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px,1fr)); gap: 28px; margin-top: 16px; }
+    .whatif-name { font-size: 11px; font-weight: bold; margin-bottom: 3px; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+    .whatif-sub  { font-size: 9px; color: #999; margin-bottom: 8px; }
+    .whatif-row  { display: flex; gap: 6px; font-size: 10px; padding: 2px 0; }
+    .whatif-pl   { flex: 1; color: #666; }
+    .whatif-d    { color: #aaa; min-width: 42px; text-align: right; }
+    .whatif-s    { min-width: 46px; text-align: right; }
+    .wi-best { color: #111; font-weight: bold; }
+    .wi-ok   { color: #888; }
+    .wi-bad  { color: #ddd; }
+
+    /* ── footer ──────────────────────────────────────────────────── */
+    footer { color: #ccc; font-size: 10px; padding-top: 16px; border-top: 1px solid #f0f0f0; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>atp predictions 2026</h1>
+  <p class="meta">
+    end-of-year top-10 predictions · men's singles ·
+    data from <a href="https://www.atptour.com/en/rankings/singles" target="_blank">atptour.com</a> ·
+    lower distance = better ·
+    <span id="updated-label"></span>
+  </p>
+  <nav class="nav">
+    <a href="#" class="nav-link active" data-page="overview">overview</a>
+    <a href="#" class="nav-link" data-page="analysis">analysis</a>
+    <a href="#" class="nav-link" data-page="players">players</a>
+    <a href="#" class="nav-link" data-page="records">records</a>
+  </nav>
+</header>
+
+<!-- ══ overview ═══════════════════════════════════════════════════ -->
+<div id="page-overview" class="page">
+
+  <div class="section">
+    <p class="label">prediction distance over time</p>
+    <p class="sublabel">click a name to toggle · euclidean distance · lower = better · ★ = week leader</p>
+    <div class="chart-wrap"><canvas id="c-dist"></canvas></div>
+    <div class="legend" id="leg-dist"></div>
+  </div>
+
+  <div class="section">
+    <p class="label">current standings</p>
+    <p class="sublabel">distance · Δ vs prev week · weeks led</p>
+    <div id="board" style="margin-top:12px"></div>
+  </div>
+
+</div>
+
+<!-- ══ analysis ═══════════════════════════════════════════════════ -->
+<div id="page-analysis" class="page" style="display:none">
+
+  <div class="section">
+    <p class="label">spearman rank correlation</p>
+    <p class="sublabel">how well does predicted ordering match actual rankings · higher = better · click to toggle</p>
+    <div class="chart-wrap"><canvas id="c-spear"></canvas></div>
+    <div class="legend" id="leg-spear"></div>
+  </div>
+
+  <div class="section">
+    <p class="label">score breakdown · what's costing you</p>
+    <p class="sublabel">bar = squared error for each pick · sorted worst first · total = distance²</p>
+    <div class="decomp-grid" id="decomp"></div>
+  </div>
+
+  <div class="section">
+    <p class="label">predicted vs actual rank · latest week</p>
+    <p class="sublabel">x = predicted rank · y = actual rank (↑ = better) · diagonal = perfect · hover for names</p>
+    <div class="scatter-grid" id="scatter"></div>
+  </div>
+
+  <div class="section">
+    <p class="label">pick error distribution · latest week</p>
+    <p class="sublabel">count of picks at each |predicted − actual| error level · tight = consistent · spread = high variance</p>
+    <div class="hist-container" id="err-hist"></div>
+  </div>
+
+  <div class="section">
+    <p class="label">what if you dropped a pick?</p>
+    <p class="sublabel">distance if each pick were excluded from scoring · sorted cheapest-to-drop first · bold = biggest saving</p>
+    <div class="whatif-grid" id="whatif"></div>
+  </div>
+
+</div>
+
+<!-- ══ players ════════════════════════════════════════════════════ -->
+<div id="page-players" class="page" style="display:none">
+
+  <div class="section">
+    <p class="label">player rank trajectories</p>
+    <p class="sublabel">actual atp rank each week · rank 1 at top · click legend to highlight a player</p>
+    <div class="chart-wrap-tall"><canvas id="c-players"></canvas></div>
+    <div class="legend" id="leg-players"></div>
+  </div>
+
+  <div class="section">
+    <p class="label">weekly actual ranks</p>
+    <p class="sublabel">shading: whiter = better rank · click a player name to highlight their line above</p>
+    <div style="overflow-x:auto;margin-top:12px">
+      <table class="rank-table" id="rank-table"></table>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="label">biggest movers since week 1</p>
+    <div class="movers" id="movers" style="margin-top:12px"></div>
+  </div>
+
+  <div class="section">
+    <p class="label">picks breakdown · latest week</p>
+    <p class="sublabel">predicted → actual · diff: dark = good · grey = ok · light = miss</p>
+    <div class="preds" id="preds" style="margin-top:12px"></div>
+  </div>
+
+</div>
+
+<!-- ══ records ════════════════════════════════════════════════════ -->
+<div id="page-records" class="page" style="display:none">
+
+  <div class="section">
+    <p class="label">game insights</p>
+    <div class="cards" id="cards" style="margin-top:12px"></div>
+  </div>
+
+  <div class="section">
+    <p class="label">cumulative total distance</p>
+    <p class="sublabel">running sum of weekly distances — like a golf score, lower is better · click to toggle</p>
+    <div class="chart-wrap-short"><canvas id="c-cumul"></canvas></div>
+    <div class="legend" id="leg-cumul"></div>
+  </div>
+
+  <div class="section">
+    <p class="label">head-to-head record · all weeks</p>
+    <p class="sublabel">row beats column X / N weeks · darker cell = more dominant</p>
+    <div id="h2h" class="h2h-wrap"></div>
+  </div>
+
+  <div class="section">
+    <p class="label">prediction accuracy · animated by week</p>
+    <p class="sublabel">small = predicted rank · large = actual rank · white = on target · dark = off</p>
+    <div class="anim-ctrl" style="margin-top:12px">
+      <button class="play-btn" id="play-btn">▶</button>
+      <input type="range" class="week-slider" id="week-slider" min="0" value="0"/>
+      <span class="week-label" id="week-label"></span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="heatmap" id="heatmap"></table>
+    </div>
+  </div>
+
+</div>
+
+<footer id="footer"></footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   constants & helpers
+═══════════════════════════════════════════════════════════════ */
+const PREDICTORS = ["adriano","viola","federico","alessandro"];
+const PAL = {
+  adriano:    { c:"#111", dash:[],          w:2.0 },
+  viola:      { c:"#666", dash:[6,3],       w:1.8 },
+  federico:   { c:"#aaa", dash:[2,3],       w:1.5 },
+  alessandro: { c:"#ccc", dash:[10,4,2,4], w:1.5 },
+};
+const PLAYER_ST = [
+  {c:"#111",dash:[]},{c:"#444",dash:[5,3]},{c:"#777",dash:[2,3]},
+  {c:"#999",dash:[8,3,2,3]},{c:"#bbb",dash:[]},{c:"#333",dash:[4,2]},
+  {c:"#555",dash:[2,2]},{c:"#aaa",dash:[10,3]},{c:"#222",dash:[6,2,2,2]},
+  {c:"#888",dash:[]},{c:"#ccc",dash:[3,3]},{c:"#666",dash:[6,3]},
+  {c:"#444",dash:[1,3]},
+];
+
+let animTimer = null, currentWk = 0;
+let playerChartInst = null;
+
+function rankOf(player, actuals, penalty) {
+  const slug = player.toLowerCase().replace(/ /g,"-");
+  if (actuals[slug] !== undefined) return actuals[slug];
+  const frag = slug.replace(/-/g,"").slice(0,7);
+  const key  = Object.keys(actuals).find(k => k.replace(/-/g,"").includes(frag));
+  return key ? actuals[key] : penalty;
+}
+function wkLabel(date) { const [,m,d]=date.split("-"); return `${m}/${d}`; }
+function heatBg(err) {
+  const t = Math.min(err/12,1);
+  const v = Math.round(255 - t*185);
+  return `rgb(${v},${v},${v})`;
+}
+function heatFg(err) { return err>=7?"#fff":"#111"; }
+function rankBg(r, penalty) {
+  if (r>=penalty) return "#f8f8f8";
+  const t = Math.min((r-1)/30,1);
+  return `rgb(${Math.round(255-t*85)},${Math.round(255-t*85)},${Math.round(255-t*85)})`;
+}
+function spearman(myPreds, actuals, penalty) {
+  const withA = myPreds.map(p=>({...p, a: rankOf(p.player,actuals,penalty)}));
+  const sorted = [...withA].sort((a,b)=>a.a-b.a);
+  const orderMap = {};
+  sorted.forEach((p,i)=>{ orderMap[p.player]=i+1; });
+  let dSq=0;
+  withA.forEach(p=>{ const d=p.predicted_rank-(orderMap[p.player]||10); dSq+=d*d; });
+  const n=10;
+  return +(1 - 6*dSq/(n*(n*n-1))).toFixed(3);
+}
+function makeChartDefaults() {
+  return {
+    responsive:true, maintainAspectRatio:false,
+    interaction:{mode:"index",intersect:false},
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        backgroundColor:"#fff",borderColor:"#e8e8e8",borderWidth:1,
+        titleColor:"#aaa",bodyColor:"#111",padding:10,
+        bodyFont:{family:"Courier New",size:11},
+        titleFont:{family:"Courier New",size:10},
+      },
+    },
+    scales:{
+      x:{grid:{color:"#f8f8f8"},ticks:{color:"#ccc",font:{family:"Courier New",size:10}}},
+      y:{grid:{color:"#f8f8f8"},ticks:{color:"#ccc",font:{family:"Courier New",size:10}}},
+    },
+  };
+}
+
+/* ── nav switching ───────────────────────────────────────────── */
+document.querySelectorAll(".nav-link").forEach(link => {
+  link.addEventListener("click", e => {
+    e.preventDefault();
+    const page = link.dataset.page;
+    if (animTimer) { clearInterval(animTimer); animTimer=null; }
+    const btn = document.getElementById("play-btn");
+    if (btn) btn.textContent = "▶";
+    document.querySelectorAll(".nav-link").forEach(l =>
+      l.classList.toggle("active", l.dataset.page === page));
+    document.querySelectorAll(".page").forEach(p => {
+      p.style.display = p.id === "page-"+page ? "" : "none";
+    });
+    setTimeout(() => window.dispatchEvent(new Event("resize")), 10);
+  });
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   fetch & render
+═══════════════════════════════════════════════════════════════ */
+fetch("data/rankings.json?t="+Date.now())
+  .then(r=>r.json()).then(data=>render(data))
+  .catch(()=>{
+    document.body.innerHTML+=`<p style="color:#bbb;margin-top:40px;font-size:12px">
+      could not load data/rankings.json — run
+      <code>python3 update_data.py</code> then
+      <code>python3 -m http.server 8080</code></p>`;
+  });
+
+function render(data) {
+  const weeks   = data.weeks;
+  const preds   = data.predictions;
+  const penalty = data.penalty_rank || 100;
+  const latest  = weeks[weeks.length-1];
+  const first   = weeks[0];
+
+  const allPlayers = [...new Set(
+    PREDICTORS.flatMap(n=>(preds[n]||[]).map(p=>p.player))
+  )];
+
+  if (data.updated) {
+    const d = new Date(data.updated);
+    document.getElementById("updated-label").textContent =
+      "updated "+d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+  }
+
+  function buildLegend(el, items, onToggle) {
+    items.forEach(({name,color,dash,width,extra}) => {
+      const div = document.createElement("div");
+      div.className = "legend-item";
+      div.dataset.name = name;
+      div.innerHTML = `
+        <svg width="22" height="8" viewBox="0 0 22 8">
+          <line x1="0" y1="4" x2="22" y2="4"
+            stroke="${color}" stroke-width="${width||1.5}"
+            stroke-dasharray="${(dash||[]).join(",")||"none"}"/>
+        </svg>
+        <span>${name}</span>
+        ${extra?`<span class="legend-rank">${extra}</span>`:""}`;
+      if (onToggle) div.addEventListener("click", ()=>onToggle(div,name));
+      el.appendChild(div);
+    });
+  }
+
+  /* ── 1. distance chart ──────────────────────────────────────── */
+  {
+    const labels = weeks.map(w=>wkLabel(w.date));
+    const sorted = PREDICTORS.slice().sort((a,b)=>latest.distances[a]-latest.distances[b]);
+    const pointStyles = PREDICTORS.map(name =>
+      weeks.map(w => {
+        const best = PREDICTORS.reduce((a,b)=>w.distances[a]<w.distances[b]?a:b);
+        return name===best ? "star" : "circle";
+      })
+    );
+    const chartInst = new Chart(document.getElementById("c-dist"), {
+      type:"line",
+      data:{
+        labels,
+        datasets: PREDICTORS.map((name,ni) => {
+          const p=PAL[name];
+          return {
+            label:name,
+            data: weeks.map(w=>w.distances[name]),
+            borderColor:p.c, borderDash:p.dash, borderWidth:p.w,
+            pointRadius: weeks.map((_,wi)=>pointStyles[ni][wi]==="star"?5:2),
+            pointStyle:  pointStyles[ni],
+            pointHoverRadius:6, pointBackgroundColor:p.c,
+            tension:.35, fill:false,
+          };
+        }),
+      },
+      options:{
+        ...makeChartDefaults(),
+        plugins:{
+          ...makeChartDefaults().plugins,
+          tooltip:{
+            ...makeChartDefaults().plugins.tooltip,
+            itemSort:(a,b)=>b.parsed.y-a.parsed.y,
+            callbacks:{
+              title:i=>"week of "+weeks[i[0].dataIndex].date,
+              label:i=>`  ${i.dataset.label}: ${i.parsed.y.toFixed(2)}`,
+            },
+          },
+        },
+        scales:{
+          x:{grid:{color:"#f8f8f8"},ticks:{color:"#ccc",font:{family:"Courier New",size:10}}},
+          y:{
+            grid:{color:"#f8f8f8"},
+            ticks:{color:"#ccc",font:{family:"Courier New",size:10},callback:v=>v.toFixed(0)},
+            title:{display:true,text:"distance",color:"#ddd",font:{family:"Courier New",size:10}},
+          },
+        },
+      },
+    });
+    buildLegend(
+      document.getElementById("leg-dist"),
+      sorted.map(n=>({name:n,color:PAL[n].c,dash:PAL[n].dash,width:PAL[n].w,extra:latest.distances[n].toFixed(2)})),
+      (div,name) => {
+        const ds=chartInst.data.datasets.find(d=>d.label===name);
+        if(!ds) return;
+        ds.hidden=!ds.hidden;
+        div.classList.toggle("muted",ds.hidden);
+        chartInst.update();
+      }
+    );
+  }
+
+  /* ── 2. leaderboard (no trend) ──────────────────────────────── */
+  {
+    const sorted = PREDICTORS.slice().sort((a,b)=>latest.distances[a]-latest.distances[b]);
+    const maxDist = Math.max(...sorted.map(n=>latest.distances[n]));
+    const wins = {};
+    PREDICTORS.forEach(n=>wins[n]=0);
+    weeks.forEach(w=>{
+      const best=PREDICTORS.reduce((a,b)=>w.distances[a]<w.distances[b]?a:b);
+      wins[best]++;
+    });
+    const boardEl = document.getElementById("board");
+    sorted.forEach((name,i)=>{
+      const cur   = latest.distances[name];
+      const prev  = weeks.length>1 ? weeks[weeks.length-2].distances[name] : cur;
+      const delta = cur-prev;
+      const pct   = (cur/maxDist*100).toFixed(1);
+      const deltaStr = delta===0 ? "–" : (delta<0?"▲ ":"▼ ")+Math.abs(delta).toFixed(2);
+      const deltaCls = delta<0 ? "d-up" : "d-dn";
+      const row = document.createElement("div");
+      row.className = "board-row";
+      row.innerHTML = `
+        <span class="board-pos">${i+1}</span>
+        <span class="board-name">${name}</span>
+        <div class="board-bar-wrap"><div class="board-bar" style="width:${pct}%"></div></div>
+        <span class="board-dist">${cur.toFixed(2)}</span>
+        <span class="board-delta ${deltaCls}" title="vs prev week">${deltaStr}</span>
+        <span class="board-wins" title="weeks led">${wins[name]}/${weeks.length} wks led</span>`;
+      boardEl.appendChild(row);
+    });
+  }
+
+  /* ── 3. spearman chart ──────────────────────────────────────── */
+  {
+    const labels = weeks.map(w=>wkLabel(w.date));
+    const latestSpear = {};
+    PREDICTORS.forEach(n=>{ latestSpear[n]=spearman(preds[n]||[],latest.actuals,penalty); });
+    const spearSorted = PREDICTORS.slice().sort((a,b)=>latestSpear[b]-latestSpear[a]);
+    const spearInst = new Chart(document.getElementById("c-spear"), {
+      type:"line",
+      data:{
+        labels,
+        datasets: PREDICTORS.map(name => {
+          const p=PAL[name];
+          return {
+            label:name,
+            data: weeks.map(w=>spearman(preds[name]||[],w.actuals,penalty)),
+            borderColor:p.c, borderDash:p.dash, borderWidth:p.w,
+            pointRadius:2, pointHoverRadius:5, pointBackgroundColor:p.c,
+            tension:.35, fill:false,
+          };
+        }),
+      },
+      options:{
+        ...makeChartDefaults(),
+        plugins:{
+          ...makeChartDefaults().plugins,
+          tooltip:{
+            ...makeChartDefaults().plugins.tooltip,
+            itemSort:(a,b)=>b.parsed.y-a.parsed.y,
+            callbacks:{
+              title:i=>"week of "+weeks[i[0].dataIndex].date,
+              label:i=>`  ${i.dataset.label}: ρ = ${i.parsed.y.toFixed(3)}`,
+            },
+          },
+        },
+        scales:{
+          x:{grid:{color:"#f8f8f8"},ticks:{color:"#ccc",font:{family:"Courier New",size:10}}},
+          y:{
+            min:-1,max:1,
+            grid:{color:"#f8f8f8"},
+            ticks:{color:"#ccc",font:{family:"Courier New",size:10},stepSize:.5},
+            title:{display:true,text:"ρ (higher = better)",color:"#ddd",font:{family:"Courier New",size:10}},
+          },
+        },
+      },
+    });
+    buildLegend(
+      document.getElementById("leg-spear"),
+      spearSorted.map(n=>({name:n,color:PAL[n].c,dash:PAL[n].dash,width:PAL[n].w,extra:`ρ=${latestSpear[n].toFixed(2)}`})),
+      (div,name) => {
+        const ds=spearInst.data.datasets.find(d=>d.label===name);
+        if(!ds) return;
+        ds.hidden=!ds.hidden;
+        div.classList.toggle("muted",ds.hidden);
+        spearInst.update();
+      }
+    );
+  }
+
+  /* ── 4. insights cards ──────────────────────────────────────── */
+  {
+    const cardsEl = document.getElementById("cards");
+    let bestPick={err:999}, worstPick={err:-1}, perfectHits=0;
+    PREDICTORS.forEach(name=>{
+      (preds[name]||[]).forEach(p=>{
+        const a=rankOf(p.player,latest.actuals,penalty);
+        const err=a>=penalty?99:Math.abs(p.predicted_rank-a);
+        if(err<bestPick.err)  bestPick ={err,name,player:p.player,pred:p.predicted_rank,actual:a};
+        if(err>worstPick.err) worstPick={err,name,player:p.player,pred:p.predicted_rank,actual:a};
+        if(err===0) perfectHits++;
+      });
+    });
+    const wins={};
+    PREDICTORS.forEach(n=>wins[n]=0);
+    weeks.forEach(w=>{ const b=PREDICTORS.reduce((a,b)=>w.distances[a]<w.distances[b]?a:b); wins[b]++; });
+    const topWinner=PREDICTORS.reduce((a,b)=>wins[a]>wins[b]?a:b);
+    const cumDists={};
+    PREDICTORS.forEach(n=>{ cumDists[n]=weeks.reduce((s,w)=>s+w.distances[n],0); });
+    const bestCum=PREDICTORS.reduce((a,b)=>cumDists[a]<cumDists[b]?a:b);
+    const playerPredRanks={};
+    PREDICTORS.forEach(name=>{
+      (preds[name]||[]).forEach(p=>{
+        if(!playerPredRanks[p.player]) playerPredRanks[p.player]=[];
+        playerPredRanks[p.player].push(p.predicted_rank);
+      });
+    });
+    let maxVar=-1, mostContested="";
+    Object.entries(playerPredRanks).forEach(([pl,rs])=>{
+      if(rs.length<2) return;
+      const mean=rs.reduce((a,b)=>a+b,0)/rs.length;
+      const variance=rs.reduce((s,r)=>s+(r-mean)**2,0)/rs.length;
+      if(variance>maxVar){maxVar=variance;mostContested=pl;}
+    });
+    [
+      {label:"best single pick", val:bestPick.player, sub:`by ${bestPick.name} · pred #${bestPick.pred} = actual #${bestPick.actual}`},
+      {label:"worst single pick", val:worstPick.player, sub:`by ${worstPick.name} · pred #${worstPick.pred} vs actual #${worstPick.actual}`},
+      {label:"weeks in the lead", val:`${wins[topWinner]}/${weeks.length}`, sub:`${topWinner} has led every week`},
+      {label:"perfect hits", val:`${perfectHits}`, sub:`picks where predicted = actual rank`},
+      {label:"cumulative leader", val:bestCum, sub:`total ${cumDists[bestCum].toFixed(1)} across ${weeks.length} weeks`},
+      {label:"most disputed pick", val:mostContested, sub:`predicted ranks: ${playerPredRanks[mostContested]?.join(", ")} · actual #${rankOf(mostContested,latest.actuals,penalty)}`},
+    ].forEach(({label,val,sub})=>{
+      const c=document.createElement("div");
+      c.className="card";
+      c.innerHTML=`<span class="card-label">${label}</span><span class="card-val">${val}</span><span class="card-sub">${sub}</span>`;
+      cardsEl.appendChild(c);
+    });
+  }
+
+  /* ── 5. score breakdown ─────────────────────────────────────── */
+  {
+    const sorted=PREDICTORS.slice().sort((a,b)=>latest.distances[a]-latest.distances[b]);
+    const decomp=document.getElementById("decomp");
+    sorted.forEach(name=>{
+      const block=document.createElement("div");
+      const myPreds=preds[name]||[];
+      const sq=p=>{ const a=rankOf(p.player,latest.actuals,penalty); return a>=penalty?(p.predicted_rank-50)**2:(p.predicted_rank-a)**2; };
+      const totalSq=myPreds.reduce((s,p)=>s+sq(p),0);
+      const maxSq=Math.max(...myPreds.map(sq),1);
+      const sorted10=[...myPreds].sort((a,b)=>sq(b)-sq(a));
+      let html=`<div class="decomp-head">${name} · d=${latest.distances[name].toFixed(2)}</div>`;
+      sorted10.forEach(p=>{
+        const a=rankOf(p.player,latest.actuals,penalty);
+        const s=sq(p), pct=(s/maxSq*100).toFixed(1);
+        const diffStr=a>=penalty?"unranked":`${a>p.predicted_rank?"+":""}${a-p.predicted_rank}`;
+        html+=`<div class="decomp-row">
+          <span class="decomp-player">${p.player}</span>
+          <div class="decomp-bar-wrap"><div class="decomp-bar" style="width:${pct}%"></div></div>
+          <span class="decomp-err ${s>30?"hi":""}">${diffStr} · ${s}pts</span>
+        </div>`;
+      });
+      html+=`<div class="decomp-total">total error² = ${totalSq.toFixed(0)}</div>`;
+      block.innerHTML=html;
+      decomp.appendChild(block);
+    });
+  }
+
+  /* ── 6. scatter plots ───────────────────────────────────────── */
+  {
+    const sortedP=PREDICTORS.slice().sort((a,b)=>latest.distances[a]-latest.distances[b]);
+    const container=document.getElementById("scatter");
+    sortedP.forEach(name=>{
+      const myPreds=preds[name]||[];
+      const points=myPreds.map(p=>({px:p.predicted_rank,py:rankOf(p.player,latest.actuals,penalty),label:p.player}));
+      const maxY=Math.min(50,Math.max(12,...points.filter(p=>p.py<penalty).map(p=>p.py)));
+      const W=220,H=200,pt=14,pl=28,pb=22,pr=10;
+      const cw=W-pl-pr, ch=H-pt-pb;
+      const cx=px=>(pl+(px-1)/9*cw);
+      const cy=py=>(pt+(py-1)/(maxY-1)*ch);
+      const abbr=player=>{ const parts=player.split(/[\s-]/); return (parts.length>=2?parts.map(p=>p[0]).join(""):player.slice(0,3)).toUpperCase().slice(0,3); };
+      let circles="";
+      points.forEach(({px,py,label})=>{
+        const x=cx(px), y=py>=penalty?pt+ch+5:cy(py);
+        const fill=py>=penalty?"#eee":Math.abs(px-py)<=1?"#111":"#666";
+        circles+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="${fill}" stroke="#fff" stroke-width="1"><title>${label}: pred #${px} · actual ${py>=penalty?"unranked":"#"+py}</title></circle>`;
+        if(py<penalty) circles+=`<text x="${(x+6).toFixed(1)}" y="${(y+(y>pt+ch*0.8?-5:4)).toFixed(1)}" font-size="7" fill="#999" font-family="Courier New">${abbr(label)}</text>`;
+      });
+      const ySteps=[1,5,10,20,30,40,50].filter(v=>v<=maxY);
+      const block=document.createElement("div");
+      block.className="scatter-block";
+      block.innerHTML=`
+        <div class="scatter-title">${name} · d=${latest.distances[name].toFixed(2)}</div>
+        <svg class="scatter-svg" viewBox="0 0 ${W} ${H}" height="${H}">
+          <line x1="${pl}" y1="${pt+ch}" x2="${pl+cw}" y2="${pt+ch}" stroke="#eee" stroke-width="1"/>
+          <line x1="${pl}" y1="${pt}" x2="${pl}" y2="${pt+ch}" stroke="#eee" stroke-width="1"/>
+          ${ySteps.map(v=>`<line x1="${pl}" y1="${cy(v).toFixed(1)}" x2="${pl+cw}" y2="${cy(v).toFixed(1)}" stroke="#f5f5f5" stroke-width="1"/>
+            <text x="${pl-4}" y="${(cy(v)+3).toFixed(1)}" text-anchor="end" font-size="7" fill="#ccc" font-family="Courier New">${v}</text>`).join("")}
+          ${[1,5,10].map(v=>`<text x="${cx(v).toFixed(1)}" y="${pt+ch+12}" text-anchor="middle" font-size="7" fill="#ccc" font-family="Courier New">${v}</text>`).join("")}
+          <line x1="${cx(1).toFixed(1)}" y1="${cy(1).toFixed(1)}" x2="${cx(10).toFixed(1)}" y2="${cy(Math.min(10,maxY)).toFixed(1)}" stroke="#ddd" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="${pl+cw/2}" y="${H-2}" text-anchor="middle" font-size="8" fill="#ccc" font-family="Courier New">predicted rank</text>
+          <text x="8" y="${pt+ch/2}" text-anchor="middle" font-size="8" fill="#ccc" font-family="Courier New" transform="rotate(-90,8,${pt+ch/2})">actual</text>
+          ${circles}
+        </svg>`;
+      container.appendChild(block);
+    });
+  }
+
+  /* ── 7. cumulative chart ────────────────────────────────────── */
+  {
+    const labels=weeks.map(w=>wkLabel(w.date));
+    const cuml={};
+    PREDICTORS.forEach(n=>{ let s=0; cuml[n]=weeks.map(w=>{s+=w.distances[n];return +s.toFixed(3);}); });
+    const sorted=PREDICTORS.slice().sort((a,b)=>cuml[a][cuml[a].length-1]-cuml[b][cuml[b].length-1]);
+    const cumulInst=new Chart(document.getElementById("c-cumul"),{
+      type:"line",
+      data:{
+        labels,
+        datasets:PREDICTORS.map(name=>{
+          const p=PAL[name];
+          return {label:name,data:cuml[name],borderColor:p.c,borderDash:p.dash,borderWidth:p.w,pointRadius:2,pointHoverRadius:5,pointBackgroundColor:p.c,tension:.35,fill:false};
+        }),
+      },
+      options:{
+        ...makeChartDefaults(),
+        plugins:{
+          ...makeChartDefaults().plugins,
+          tooltip:{...makeChartDefaults().plugins.tooltip,itemSort:(a,b)=>b.parsed.y-a.parsed.y,callbacks:{title:i=>"after "+weeks[i[0].dataIndex].date,label:i=>`  ${i.dataset.label}: ${i.parsed.y.toFixed(1)} total`}},
+        },
+        scales:{
+          x:{grid:{color:"#f8f8f8"},ticks:{color:"#ccc",font:{family:"Courier New",size:10}}},
+          y:{grid:{color:"#f8f8f8"},ticks:{color:"#ccc",font:{family:"Courier New",size:10}},title:{display:true,text:"cumulative distance",color:"#ddd",font:{family:"Courier New",size:10}}},
+        },
+      },
+    });
+    buildLegend(
+      document.getElementById("leg-cumul"),
+      sorted.map(n=>({name:n,color:PAL[n].c,dash:PAL[n].dash,width:PAL[n].w,extra:cuml[n][cuml[n].length-1].toFixed(1)})),
+      (div,name)=>{ const ds=cumulInst.data.datasets.find(d=>d.label===name); if(!ds) return; ds.hidden=!ds.hidden; div.classList.toggle("muted",ds.hidden); cumulInst.update(); }
+    );
+  }
+
+  /* ── 8. player rank trajectories ────────────────────────────── */
+  {
+    const labels=weeks.map(w=>wkLabel(w.date));
+    const sortedByRank=[...allPlayers].sort((a,b)=>rankOf(a,latest.actuals,penalty)-rankOf(b,latest.actuals,penalty));
+    playerChartInst=new Chart(document.getElementById("c-players"),{
+      type:"line",
+      data:{
+        labels,
+        datasets:sortedByRank.map((player,i)=>{
+          const st=PLAYER_ST[i%PLAYER_ST.length];
+          return {label:player,data:weeks.map(w=>{const r=rankOf(player,w.actuals,penalty);return r>=penalty?null:r;}),borderColor:st.c,borderDash:st.dash,borderWidth:1.4,pointRadius:2,pointHoverRadius:5,pointBackgroundColor:st.c,tension:.3,fill:false,spanGaps:true};
+        }),
+      },
+      options:{
+        ...makeChartDefaults(),
+        plugins:{
+          ...makeChartDefaults().plugins,
+          tooltip:{...makeChartDefaults().plugins.tooltip,itemSort:(a,b)=>(a.parsed.y??999)-(b.parsed.y??999),callbacks:{title:i=>"week of "+weeks[i[0].dataIndex].date,label:i=>i.parsed.y==null?null:`  ${i.dataset.label}: #${i.parsed.y}`}},
+        },
+        scales:{
+          x:{grid:{color:"#f8f8f8"},ticks:{color:"#ccc",font:{family:"Courier New",size:10}}},
+          y:{reverse:true,min:1,grid:{color:"#f8f8f8"},ticks:{color:"#ccc",font:{family:"Courier New",size:10},callback:v=>`#${v}`,stepSize:5},title:{display:true,text:"atp rank",color:"#ddd",font:{family:"Courier New",size:10}}},
+        },
+      },
+    });
+    buildLegend(
+      document.getElementById("leg-players"),
+      sortedByRank.map((player,i)=>{
+        const st=PLAYER_ST[i%PLAYER_ST.length];
+        const r=rankOf(player,latest.actuals,penalty);
+        return {name:player,color:st.c,dash:st.dash,width:1.4,extra:`#${r>=penalty?"–":r}`};
+      }),
+      (div,player)=>{
+        const ds=playerChartInst.data.datasets.find(d=>d.label===player);
+        if(!ds) return;
+        const mute=!ds.hidden;
+        playerChartInst.data.datasets.forEach((d,i)=>{
+          d.hidden=false;
+          d.borderWidth=mute?1.4:(d.label===player?2.5:0.5);
+          d.borderColor=mute?PLAYER_ST[sortedByRank.indexOf(d.label)%PLAYER_ST.length].c:(d.label===player?"#000":"#ddd");
+        });
+        document.querySelectorAll("#leg-players .legend-item").forEach(el=>{
+          el.classList.toggle("muted",mute&&el.dataset.name!==player);
+        });
+        if(mute){
+          playerChartInst.data.datasets.forEach((d,i)=>{const st=PLAYER_ST[i%PLAYER_ST.length];d.borderWidth=1.4;d.borderColor=st.c;});
+          document.querySelectorAll("#leg-players .legend-item").forEach(el=>el.classList.remove("muted"));
+        }
+        playerChartInst.update();
+      }
+    );
+  }
+
+  /* ── 9. weekly rank table ───────────────────────────────────── */
+  {
+    const table=document.getElementById("rank-table");
+    const sortedP=[...allPlayers].sort((a,b)=>rankOf(a,latest.actuals,penalty)-rankOf(b,latest.actuals,penalty));
+    let html=`<thead><tr><th class="p-col">player</th>${weeks.map(w=>`<th>${wkLabel(w.date)}</th>`).join("")}<th>spark</th></tr></thead><tbody>`;
+    sortedP.forEach(player=>{
+      const ranks=weeks.map(w=>rankOf(player,w.actuals,penalty));
+      const valid=ranks.filter(r=>r<penalty);
+      const lo=valid.length?Math.min(...valid):1, hi=valid.length?Math.max(...valid):30;
+      const W=56,H=16;
+      const px=i=>weeks.length<2?W/2:(i/(weeks.length-1))*W;
+      const py=r=>r>=penalty?H:(H-4)*(r-lo)/Math.max(hi-lo,1)+2;
+      const pts=ranks.map((r,i)=>`${px(i).toFixed(1)},${py(r).toFixed(1)}`).join(" ");
+      const dots=ranks.map((r,i)=>r<penalty?`<circle cx="${px(i).toFixed(1)}" cy="${py(r).toFixed(1)}" r="1.5" fill="#888"/>`:"").join("");
+      const spark=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><polyline points="${pts}" fill="none" stroke="#ccc" stroke-width="1.2"/>${dots}</svg>`;
+      html+=`<tr><td class="p-col" data-player="${player}">${player}</td>${ranks.map(r=>`<td style="background:${rankBg(r,penalty)};color:${r<6?"#000":r<15?"#555":"#aaa"}">${r>=penalty?"–":r}</td>`).join("")}<td style="text-align:left;padding-left:6px">${spark}</td></tr>`;
+    });
+    table.innerHTML=html+"</tbody>";
+    table.querySelectorAll("td.p-col").forEach(td=>{
+      td.addEventListener("click",()=>{
+        const player=td.dataset.player;
+        document.querySelector('.nav-link[data-page="players"]').click();
+        setTimeout(()=>{
+          const li=document.querySelector(`#leg-players .legend-item[data-name="${player}"]`);
+          if(li) li.click();
+        },50);
+      });
+    });
+  }
+
+  /* ── 10. animated heatmap ───────────────────────────────────── */
+  {
+    const slider=document.getElementById("week-slider");
+    const lbl=document.getElementById("week-label");
+    const playBtn=document.getElementById("play-btn");
+    const table=document.getElementById("heatmap");
+    slider.max=weeks.length-1; slider.value=weeks.length-1; currentWk=weeks.length-1;
+    const sortedP=[...allPlayers].sort((a,b)=>rankOf(a,latest.actuals,penalty)-rankOf(b,latest.actuals,penalty));
+    function drawHeatmap(wi) {
+      const w=weeks[wi];
+      lbl.textContent=`week of ${w.date}`;
+      let html=`<thead><tr><th class="rh"></th>${sortedP.map(p=>`<th style="font-size:8px;letter-spacing:0">${p}</th>`).join("")}</tr></thead><tbody>`;
+      PREDICTORS.forEach(name=>{
+        const predMap=Object.fromEntries((preds[name]||[]).map(p=>[p.player,p.predicted_rank]));
+        html+=`<tr><td class="rh">${name}</td>`;
+        sortedP.forEach(player=>{
+          const pr=predMap[player], ar=rankOf(player,w.actuals,penalty);
+          if(pr===undefined){ html+=`<td style="background:#fafafa;color:#ddd;font-size:8px">—</td>`; }
+          else {
+            const err=Math.abs(pr-(ar>=penalty?40:ar));
+            const bg=heatBg(err), fg=heatFg(err);
+            html+=`<td style="background:${bg};color:${fg}"><span class="cell-pred" style="color:${err>=7?"rgba(255,255,255,.5)":"#ccc"}">${pr}</span><span class="cell-actual">${ar>=penalty?"–":ar}</span></td>`;
+          }
+        });
+        html+="</tr>";
+      });
+      table.innerHTML=html+"</tbody>";
+    }
+    drawHeatmap(currentWk);
+    slider.addEventListener("input",()=>{ currentWk=+slider.value; drawHeatmap(currentWk); });
+    playBtn.addEventListener("click",()=>{
+      if(animTimer){ clearInterval(animTimer); animTimer=null; playBtn.textContent="▶"; }
+      else {
+        if(currentWk>=weeks.length-1){ currentWk=0; slider.value=0; }
+        playBtn.textContent="⏸";
+        animTimer=setInterval(()=>{
+          currentWk++; slider.value=currentWk; drawHeatmap(currentWk);
+          if(currentWk>=weeks.length-1){ clearInterval(animTimer); animTimer=null; playBtn.textContent="▶"; }
+        },900);
+      }
+    });
+  }
+
+  /* ── 11. movers ─────────────────────────────────────────────── */
+  {
+    const moversEl=document.getElementById("movers");
+    const deltas=allPlayers.map(p=>({player:p,delta:rankOf(p,first.actuals,penalty)-rankOf(p,latest.actuals,penalty)})).filter(d=>d.delta!==0);
+    const rose=deltas.filter(d=>d.delta>0).sort((a,b)=>b.delta-a.delta);
+    const fell=deltas.filter(d=>d.delta<0).sort((a,b)=>a.delta-b.delta);
+    const maxAbs=Math.max(...deltas.map(d=>Math.abs(d.delta)),1);
+    function mkCol(items,lbl,pos){
+      const col=document.createElement("div"); col.className="movers-col";
+      let h=`<div class="movers-title">${lbl}</div>`;
+      items.forEach(({player,delta})=>{
+        const abs=Math.abs(delta), bw=Math.round(abs/maxAbs*80);
+        h+=`<div class="mover-row"><span class="mover-name">${player}</span><div class="mover-bar ${pos?"":"fell"}" style="width:${bw}px"></div><span class="mover-delta">${pos?"↑":"↓"} ${abs}</span></div>`;
+      });
+      col.innerHTML=h; moversEl.appendChild(col);
+    }
+    mkCol(rose,"↑ risen",true);
+    mkCol(fell.map(d=>({...d,delta:-d.delta})),"↓ fallen",false);
+  }
+
+  /* ── 12. picks breakdown ────────────────────────────────────── */
+  {
+    const sorted=PREDICTORS.slice().sort((a,b)=>latest.distances[a]-latest.distances[b]);
+    const el=document.getElementById("preds");
+    sorted.forEach(name=>{
+      const block=document.createElement("div"); block.className="pred-block";
+      const sp=spearman(preds[name]||[],latest.actuals,penalty);
+      let h=`<div class="pred-name">${name} · ${latest.distances[name].toFixed(2)}</div>`;
+      h+=`<div style="font-size:9px;color:#bbb;margin-bottom:6px">ρ = ${sp.toFixed(3)}</div>`;
+      [...(preds[name]||[])].sort((a,b)=>a.predicted_rank-b.predicted_rank).forEach(p=>{
+        const a=rankOf(p.player,latest.actuals,penalty);
+        const diff=a>=penalty?null:p.predicted_rank-a;
+        const absDiff=diff===null?99:Math.abs(diff);
+        const cls=absDiff<=1?"g":absDiff<=4?"m":"b";
+        const sign=diff===null?"–":diff>0?"+"+diff:diff;
+        h+=`<div class="pred-row"><span class="pred-rk">${p.predicted_rank}</span><span class="pred-pl">${p.player}</span><span class="pred-ac">#${a>=penalty?"–":a}</span><span class="pred-df ${cls}">${sign}</span></div>`;
+      });
+      block.innerHTML=h; el.appendChild(block);
+    });
+  }
+
+  /* ── 13. head-to-head matrix ─────────────────────────────────── */
+  {
+    const el=document.getElementById("h2h");
+    const wins={};
+    PREDICTORS.forEach(a=>{ wins[a]={}; PREDICTORS.forEach(b=>wins[a][b]=0); });
+    weeks.forEach(w=>{
+      PREDICTORS.forEach(a=>{ PREDICTORS.forEach(b=>{ if(a!==b&&w.distances[a]<w.distances[b]) wins[a][b]++; }); });
+    });
+    const n=weeks.length;
+    let html=`<table class="h2h-table"><thead><tr><th class="h2h-lh"></th>${PREDICTORS.map(b=>`<th>vs ${b}</th>`).join("")}<th>total wins</th></tr></thead><tbody>`;
+    PREDICTORS.forEach(a=>{
+      const totalWins=PREDICTORS.reduce((s,b)=>s+(a!==b?wins[a][b]:0),0);
+      html+=`<tr><td class="h2h-name">${a}</td>`;
+      PREDICTORS.forEach(b=>{
+        if(a===b){ html+=`<td class="h2h-cell h2h-self">—</td>`; }
+        else {
+          const w=wins[a][b], pct=w/n;
+          const alpha=(0.08+pct*0.72).toFixed(2);
+          const fg=pct>=0.6?"#fff":pct>=0.4?"#333":"#aaa";
+          html+=`<td class="h2h-cell" style="background:rgba(0,0,0,${alpha});color:${fg}" title="${a} beat ${b} ${w}× · ${b} beat ${a} ${wins[b][a]}×">${w}&thinsp;/&thinsp;${n}</td>`;
+        }
+      });
+      html+=`<td class="h2h-cell" style="color:#888;border-color:#f0f0f0">${totalWins}&thinsp;/&thinsp;${n*(PREDICTORS.length-1)}</td></tr>`;
+    });
+    el.innerHTML=html+"</tbody></table>";
+  }
+
+  /* ── 14. error distribution histograms ──────────────────────── */
+  {
+    const el=document.getElementById("err-hist");
+    const sorted=PREDICTORS.slice().sort((a,b)=>latest.distances[a]-latest.distances[b]);
+    const BUCKETS=[0,1,2,3,4,5,6,7];
+    sorted.forEach(name=>{
+      const myPreds=preds[name]||[];
+      const errors=myPreds.map(p=>{ const a=rankOf(p.player,latest.actuals,penalty); return a>=penalty?Math.abs(p.predicted_rank-50):Math.abs(p.predicted_rank-a); });
+      const counts=BUCKETS.map(b=>errors.filter(e=>b===7?e>=7:e===b).length);
+      const maxCnt=Math.max(...counts,1);
+      const avgErr=(errors.reduce((a,b)=>a+b,0)/errors.length).toFixed(1);
+      const block=document.createElement("div");
+      block.innerHTML=`
+        <div class="hist-head">${name}</div>
+        <div class="hist-bars">
+          ${BUCKETS.map((b,i)=>{
+            const h=Math.max(Math.round(counts[i]/maxCnt*60),counts[i]>0?2:0);
+            const lbl=b===7?"7+":b;
+            return `<div class="hist-col"><div class="hist-count">${counts[i]||""}</div><div class="hist-bar${counts[i]===0?" zero":""}" style="height:${h}px" title="${counts[i]} picks with error ${lbl}"></div><div class="hist-x">${lbl}</div></div>`;
+          }).join("")}
+        </div>
+        <div class="hist-foot">avg error ${avgErr} · ${counts[0]} exact${counts[0]!==1?"s":""} · max ${Math.max(...errors)}</div>`;
+      el.appendChild(block);
+    });
+  }
+
+  /* ── 15. what-if drop-a-pick (fixed) ────────────────────────── */
+  {
+    const el=document.getElementById("whatif");
+    const sorted=PREDICTORS.slice().sort((a,b)=>latest.distances[a]-latest.distances[b]);
+    sorted.forEach(name=>{
+      const myPreds=preds[name]||[];
+      const current=latest.distances[name];
+      const dropScores=myPreds.map((dropped,di)=>{
+        const remaining=myPreds.filter((_,idx)=>idx!==di);
+        const sq=remaining.reduce((s,p)=>{
+          const a=rankOf(p.player,latest.actuals,penalty);
+          const clamped=a>=penalty?penalty:a;
+          return s+(p.predicted_rank-clamped)**2;
+        },0);
+        return {player:dropped.player,dist:+Math.sqrt(sq).toFixed(4)};
+      });
+      const ranked=dropScores.slice().sort((a,b)=>a.dist-b.dist);
+      const bestGain=current-ranked[0].dist;
+      const block=document.createElement("div");
+      let h=`<div class="whatif-name">${name} · now: ${current.toFixed(2)}</div>`;
+      h+=`<div class="whatif-sub">best drop: ${ranked[0].player} → ${ranked[0].dist.toFixed(2)} (saves ${bestGain.toFixed(2)})</div>`;
+      ranked.forEach((ds,ri)=>{
+        const save=current-ds.dist;
+        const cls=ri===0&&save>0?"wi-best":save>0.8?"wi-ok":"wi-bad";
+        const sign=save>=0?`−${save.toFixed(2)}`:`+${Math.abs(save).toFixed(2)}`;
+        h+=`<div class="whatif-row"><span class="whatif-pl">${ds.player}</span><span class="whatif-d">${ds.dist.toFixed(2)}</span><span class="whatif-s ${cls}">${sign}</span></div>`;
+      });
+      block.innerHTML=h; el.appendChild(block);
+    });
+  }
+
+  /* ── footer ─────────────────────────────────────────────────── */
+  document.getElementById("footer").textContent=
+    `data from atptour.com · ${weeks.length} weeks · ${first.date} – ${latest.date} · penalty rank ${penalty} for unranked`;
+}
+</script>
+</body>
+</html>

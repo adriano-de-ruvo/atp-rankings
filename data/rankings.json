@@ -380,6 +380,54 @@
       }
     },
     {
+      "date": "2026-03-09",
+      "distances": {
+        "adriano": 9.5917,
+        "alessandro": 29.1033,
+        "federico": 27.9285,
+        "viola": 4.1231
+      },
+      "actuals": {
+        "draper": 14,
+        "zverev": 4,
+        "medvedev": 11,
+        "auger-aliassime": 9,
+        "fonseca": 35,
+        "shelton": 8,
+        "djokovic": 3,
+        "alcaraz": 1,
+        "de-minaur": 6,
+        "sinner": 2,
+        "fritz": 7,
+        "musetti": 5,
+        "rublev": 17
+      }
+    },
+    {
+      "date": "2026-03-16",
+      "distances": {
+        "adriano": 20.6882,
+        "alessandro": 32.8024,
+        "federico": 36.9459,
+        "viola": 3.7417
+      },
+      "actuals": {
+        "medvedev": 10,
+        "zverev": 4,
+        "draper": 26,
+        "sinner": 2,
+        "auger-aliassime": 8,
+        "alcaraz": 1,
+        "de-minaur": 6,
+        "fritz": 7,
+        "shelton": 9,
+        "fonseca": 39,
+        "rublev": 16,
+        "djokovic": 3,
+        "musetti": 5
+      }
+    },
+    {
       "date": "2026-03-23",
       "distances": {
         "adriano": 20.6882,

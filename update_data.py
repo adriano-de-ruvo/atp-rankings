@@ -199,6 +199,21 @@ def main():
         print("no data collected")
         return
 
+    # merge with existing data so weeks that drop out of the ATP dropdown
+    # are not silently lost on the next run
+    path = os.path.join("data", "rankings.json")
+    existing: dict[str, dict] = {}
+    if os.path.exists(path):
+        try:
+            with open(path) as f:
+                old = json.load(f)
+            existing = {w["date"]: w for w in old.get("weeks", [])}
+        except Exception:
+            pass
+
+    merged = {**existing, **{w["date"]: w for w in weeks}}
+    weeks = sorted(merged.values(), key=lambda w: w["date"])
+
     output = {
         "updated":      datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
         "penalty_rank": PENALTY_RANK,
@@ -213,7 +228,6 @@ def main():
     }
 
     os.makedirs("data", exist_ok=True)
-    path = os.path.join("data", "rankings.json")
     with open(path, "w") as f:
         json.dump(output, f, indent=2)
 

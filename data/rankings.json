@@ -1,5 +1,5 @@
 {
-  "updated": "2026-03-23T10:41:03Z",
+  "updated": "2026-03-30T10:52:55Z",
   "penalty_rank": 100,
   "predictions": {
     "adriano": [
@@ -172,19 +172,19 @@
     ]
   },
   "players": {
-    "musetti": "Musetti",
     "shelton": "Shelton",
-    "djokovic": "Djokovic",
-    "alcaraz": "Alcaraz",
-    "rublev": "Rublev",
     "auger-aliassime": "Auger-Aliassime",
-    "fonseca": "Fonseca",
-    "sinner": "Sinner",
-    "de-minaur": "De Minaur",
-    "zverev": "Zverev",
     "fritz": "Fritz",
+    "fonseca": "Fonseca",
+    "musetti": "Musetti",
+    "rublev": "Rublev",
+    "zverev": "Zverev",
+    "medvedev": "Medvedev",
     "draper": "Draper",
-    "medvedev": "Medvedev"
+    "de-minaur": "De Minaur",
+    "sinner": "Sinner",
+    "alcaraz": "Alcaraz",
+    "djokovic": "Djokovic"
   },
   "weeks": [
     {
@@ -196,19 +196,19 @@
         "viola": 5.0
       },
       "actuals": {
-        "musetti": 7,
         "shelton": 8,
-        "djokovic": 4,
-        "alcaraz": 1,
-        "rublev": 16,
         "auger-aliassime": 5,
-        "fonseca": 29,
-        "sinner": 2,
-        "de-minaur": 6,
-        "zverev": 3,
         "fritz": 9,
+        "fonseca": 29,
+        "musetti": 7,
+        "rublev": 16,
+        "zverev": 3,
+        "medvedev": 13,
         "draper": 10,
-        "medvedev": 13
+        "de-minaur": 6,
+        "sinner": 2,
+        "alcaraz": 1,
+        "djokovic": 4
       }
     },
     {
@@ -220,19 +220,19 @@
         "viola": 4.0
       },
       "actuals": {
-        "musetti": 5,
         "shelton": 8,
-        "djokovic": 4,
-        "alcaraz": 1,
-        "rublev": 14,
         "auger-aliassime": 7,
-        "fonseca": 30,
-        "sinner": 2,
-        "de-minaur": 6,
-        "zverev": 3,
         "fritz": 9,
+        "fonseca": 30,
+        "musetti": 5,
+        "rublev": 14,
+        "zverev": 3,
+        "medvedev": 12,
         "draper": 11,
-        "medvedev": 12
+        "de-minaur": 6,
+        "sinner": 2,
+        "alcaraz": 1,
+        "djokovic": 4
       }
     },
     {
@@ -244,19 +244,19 @@
         "viola": 4.2426
       },
       "actuals": {
-        "musetti": 5,
         "shelton": 7,
-        "djokovic": 4,
-        "alcaraz": 1,
-        "rublev": 15,
         "auger-aliassime": 8,
-        "fonseca": 32,
-        "sinner": 2,
-        "de-minaur": 6,
-        "zverev": 3,
         "fritz": 9,
+        "fonseca": 32,
+        "musetti": 5,
+        "rublev": 15,
+        "zverev": 3,
+        "medvedev": 12,
         "draper": 11,
-        "medvedev": 12
+        "de-minaur": 6,
+        "sinner": 2,
+        "alcaraz": 1,
+        "djokovic": 4
       }
     },
     {
@@ -268,19 +268,19 @@
         "viola": 3.873
       },
       "actuals": {
-        "musetti": 5,
         "shelton": 9,
-        "djokovic": 3,
-        "alcaraz": 1,
-        "rublev": 14,
         "auger-aliassime": 8,
-        "fonseca": 34,
-        "sinner": 2,
-        "de-minaur": 6,
-        "zverev": 4,
         "fritz": 7,
+        "fonseca": 34,
+        "musetti": 5,
+        "rublev": 14,
+        "zverev": 4,
+        "medvedev": 11,
         "draper": 13,
-        "medvedev": 11
+        "de-minaur": 6,
+        "sinner": 2,
+        "alcaraz": 1,
+        "djokovic": 3
       }
     },
     {
@@ -292,19 +292,19 @@
         "viola": 5.1962
       },
       "actuals": {
-        "musetti": 5,
         "shelton": 9,
-        "djokovic": 3,
-        "alcaraz": 1,
-        "rublev": 15,
         "auger-aliassime": 6,
-        "fonseca": 33,
-        "sinner": 2,
-        "de-minaur": 8,
-        "zverev": 4,
         "fritz": 7,
+        "fonseca": 33,
+        "musetti": 5,
+        "rublev": 15,
+        "zverev": 4,
+        "medvedev": 11,
         "draper": 12,
-        "medvedev": 11
+        "de-minaur": 8,
+        "sinner": 2,
+        "alcaraz": 1,
+        "djokovic": 3
       }
     },
     {
@@ -316,19 +316,19 @@
         "viola": 3.3166
       },
       "actuals": {
-        "musetti": 5,
         "shelton": 9,
-        "djokovic": 3,
-        "alcaraz": 1,
-        "rublev": 14,
         "auger-aliassime": 7,
-        "fonseca": 38,
-        "sinner": 2,
-        "de-minaur": 6,
-        "zverev": 4,
         "fritz": 8,
+        "fonseca": 38,
+        "musetti": 5,
+        "rublev": 14,
+        "zverev": 4,
+        "medvedev": 11,
         "draper": 12,
-        "medvedev": 11
+        "de-minaur": 6,
+        "sinner": 2,
+        "alcaraz": 1,
+        "djokovic": 3
       }
     },
     {
@@ -340,19 +340,19 @@
         "viola": 3.873
       },
       "actuals": {
-        "musetti": 5,
         "shelton": 9,
-        "djokovic": 3,
-        "alcaraz": 1,
-        "rublev": 18,
         "auger-aliassime": 8,
-        "fonseca": 38,
-        "sinner": 2,
-        "de-minaur": 6,
-        "zverev": 4,
         "fritz": 7,
+        "fonseca": 38,
+        "musetti": 5,
+        "rublev": 18,
+        "zverev": 4,
+        "medvedev": 11,
         "draper": 15,
-        "medvedev": 11
+        "de-minaur": 6,
+        "sinner": 2,
+        "alcaraz": 1,
+        "djokovic": 3
       }
     },
     {
@@ -364,19 +364,19 @@
         "viola": 4.1231
       },
       "actuals": {
-        "musetti": 5,
         "shelton": 8,
-        "djokovic": 3,
-        "alcaraz": 1,
-        "rublev": 17,
         "auger-aliassime": 9,
-        "fonseca": 35,
-        "sinner": 2,
-        "de-minaur": 6,
-        "zverev": 4,
         "fritz": 7,
+        "fonseca": 35,
+        "musetti": 5,
+        "rublev": 17,
+        "zverev": 4,
+        "medvedev": 11,
         "draper": 14,
-        "medvedev": 11
+        "de-minaur": 6,
+        "sinner": 2,
+        "alcaraz": 1,
+        "djokovic": 3
       }
     },
     {
@@ -412,19 +412,19 @@
         "viola": 3.7417
       },
       "actuals": {
-        "medvedev": 10,
-        "zverev": 4,
-        "draper": 26,
-        "sinner": 2,
-        "auger-aliassime": 8,
-        "alcaraz": 1,
-        "de-minaur": 6,
-        "fritz": 7,
         "shelton": 9,
+        "auger-aliassime": 8,
+        "fritz": 7,
         "fonseca": 39,
+        "musetti": 5,
         "rublev": 16,
-        "djokovic": 3,
-        "musetti": 5
+        "zverev": 4,
+        "medvedev": 10,
+        "draper": 26,
+        "de-minaur": 6,
+        "sinner": 2,
+        "alcaraz": 1,
+        "djokovic": 3
       }
     },
     {
@@ -449,6 +449,30 @@
         "fritz": 7,
         "draper": 26,
         "medvedev": 10
+      }
+    },
+    {
+      "date": "2026-03-30",
+      "distances": {
+        "adriano": 19.6469,
+        "alessandro": 33.9116,
+        "federico": 37.2827,
+        "viola": 3.7417
+      },
+      "actuals": {
+        "shelton": 9,
+        "auger-aliassime": 7,
+        "fritz": 8,
+        "fonseca": 40,
+        "musetti": 5,
+        "rublev": 16,
+        "zverev": 3,
+        "medvedev": 10,
+        "draper": 25,
+        "de-minaur": 6,
+        "sinner": 2,
+        "alcaraz": 1,
+        "djokovic": 4
       }
     }
   ]

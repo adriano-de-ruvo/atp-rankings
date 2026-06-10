@@ -13,6 +13,7 @@ cron example (every monday at 09:00):
 
 import re
 import os
+import sys
 import json
 import math
 import time
@@ -110,11 +111,13 @@ def scrape_all_weeks() -> list[dict]:
                        "Chrome/120.0.0.0 Safari/537.36",
         )
         page = context.new_page()
-        page.set_default_timeout(90_000)
+        # keep per-action waits short so a slow/blocked page fails fast instead
+        # of stalling the whole run (CI runs used to balloon to ~20 min)
+        page.set_default_timeout(20_000)
 
         # ── initial load ──────────────────────────────────────────────────────
         print("  loading atp rankings page …")
-        page.goto(ATP_URL, wait_until="load", timeout=90_000)
+        page.goto(ATP_URL, wait_until="domcontentloaded", timeout=30_000)
         time.sleep(5)   # let JS finish initial render
 
         # ── collect 2026 dates from the date dropdown ──────────────────────
@@ -196,8 +199,10 @@ def main():
 
     weeks = scrape_all_weeks()
     if not weeks:
-        print("no data collected")
-        return
+        # exit non-zero so the scheduled job fails LOUDLY instead of silently
+        # leaving stale data in place (e.g. when the page is blocked / changed).
+        print("no data collected — failing so the freeze is visible")
+        sys.exit(1)
 
     # merge with existing data so weeks that drop out of the ATP dropdown
     # are not silently lost on the next run

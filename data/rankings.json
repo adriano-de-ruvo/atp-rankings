@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-25T13:15:29Z",
+  "updated": "2026-06-10T08:32:12Z",
   "penalty_rank": 100,
   "predictions": {
     "adriano": [
@@ -665,6 +665,30 @@
         "rublev": 13,
         "draper": 75,
         "sinner": 1
+      }
+    },
+    {
+      "date": "2026-06-10",
+      "distances": {
+        "adriano": 94.3928,
+        "alessandro": 22.2036,
+        "federico": 96.6902,
+        "viola": 12.083
+      },
+      "actuals": {
+        "draper": 100,
+        "rublev": 13,
+        "sinner": 1,
+        "auger-aliassime": 4,
+        "alcaraz": 2,
+        "zverev": 3,
+        "medvedev": 8,
+        "musetti": 16,
+        "djokovic": 7,
+        "de-minaur": 6,
+        "shelton": 5,
+        "fonseca": 25,
+        "fritz": 9
       }
     }
   ]

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-22T12:04:50Z",
+  "updated": "2026-06-22T15:17:02Z",
   "penalty_rank": 100,
   "predictions": {
     "adriano": [
@@ -172,19 +172,19 @@
     ]
   },
   "players": {
-    "sinner": "Sinner",
     "rublev": "Rublev",
-    "auger-aliassime": "Auger-Aliassime",
-    "medvedev": "Medvedev",
     "shelton": "Shelton",
-    "fonseca": "Fonseca",
-    "fritz": "Fritz",
-    "alcaraz": "Alcaraz",
-    "zverev": "Zverev",
     "musetti": "Musetti",
+    "zverev": "Zverev",
+    "alcaraz": "Alcaraz",
+    "medvedev": "Medvedev",
+    "djokovic": "Djokovic",
+    "sinner": "Sinner",
+    "auger-aliassime": "Auger-Aliassime",
     "de-minaur": "De Minaur",
-    "draper": "Draper",
-    "djokovic": "Djokovic"
+    "fritz": "Fritz",
+    "fonseca": "Fonseca",
+    "draper": "Draper"
   },
   "weeks": [
     {
@@ -724,19 +724,19 @@
         "viola": 11.7047
       },
       "actuals": {
-        "sinner": 1,
         "rublev": 13,
-        "auger-aliassime": 4,
-        "medvedev": 9,
         "shelton": 5,
-        "fonseca": 27,
-        "fritz": 7,
-        "alcaraz": 2,
-        "zverev": 3,
         "musetti": 15,
+        "zverev": 3,
+        "alcaraz": 2,
+        "medvedev": 9,
+        "djokovic": 8,
+        "sinner": 1,
+        "auger-aliassime": 4,
         "de-minaur": 6,
-        "draper": 100,
-        "djokovic": 8
+        "fritz": 7,
+        "fonseca": 27,
+        "draper": 100
       }
     }
   ]

@@ -82,6 +82,30 @@ def parse_rankings(html: str) -> dict[str, int]:
     return result
 
 
+def wait_for_render(page, timeout_ms: int = 30_000) -> bool:
+    """Block until the date dropdown is populated AND the rankings table has
+    rendered rows. Returns True once both are present, False on timeout.
+
+    The page is server-rendered but the dropdown + historical table are filled
+    in by JS, so a fixed sleep races the render and occasionally sees an empty
+    page (which used to abort the whole CI run). Waiting on the actual DOM state
+    is both faster and far more reliable."""
+    try:
+        page.wait_for_function(
+            """() => {
+                const sel = document.getElementById('dateWeek-filter');
+                const hasDates = sel && sel.options.length > 1;
+                const hasRows  =
+                    document.querySelectorAll('a[href*="/overview"]').length > 5;
+                return hasDates && hasRows;
+            }""",
+            timeout=timeout_ms,
+        )
+        return True
+    except PWTimeout:
+        return False
+
+
 def get_rank(key: str, slug_ranks: dict[str, int]) -> int:
     for slug, rank in slug_ranks.items():
         if key in slug:
@@ -116,9 +140,20 @@ def scrape_all_weeks() -> list[dict]:
         page.set_default_timeout(20_000)
 
         # ── initial load ──────────────────────────────────────────────────────
+        # retry the load a few times: the dropdown + table are JS-rendered and
+        # occasionally aren't ready yet, which would otherwise leave us with an
+        # empty dropdown and abort the entire run.
         print("  loading atp rankings page …")
-        page.goto(ATP_URL, wait_until="domcontentloaded", timeout=30_000)
-        time.sleep(5)   # let JS finish initial render
+        for attempt in range(1, 4):
+            page.goto(ATP_URL, wait_until="domcontentloaded", timeout=30_000)
+            if wait_for_render(page):
+                break
+            print(f"    page not rendered yet (attempt {attempt}/3), retrying …")
+            time.sleep(3)
+        else:
+            print("  page never rendered (empty dropdown/table after 3 attempts)")
+            browser.close()
+            return weeks   # empty → main() exits non-zero and CI fails loudly
 
         # ── collect 2026 dates from the date dropdown ──────────────────────
         dates_2026: list[str] = page.evaluate("""() => {
